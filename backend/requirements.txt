@@ -1,0 +1,34 @@
+# Web framework
+fastapi==0.115.0
+uvicorn[standard]==0.31.0
+websockets==13.0
+python-multipart==0.0.9
+
+# STT — Whisper (requires torch; install torch first for your platform)
+# pip install torch --index-url https://download.pytorch.org/whl/cpu
+openai-whisper==20240930
+
+# LLM — Ollama (free, open-source; run `ollama pull mistral` locally)
+# No extra package needed — uses httpx to call Ollama REST API
+
+# TTS
+elevenlabs==1.9.0
+
+# Caching
+redis==5.1.1
+
+# Database
+supabase==2.8.1
+
+# HTTP client (for Ollama + ElevenLabs)
+httpx==0.27.2
+
+# Config
+python-dotenv==1.0.1
+
+# Data validation
+pydantic==2.9.2
+pydantic-settings==2.5.2
+
+# Utilities
+numpy==1.26.4

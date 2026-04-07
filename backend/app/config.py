@@ -1,0 +1,33 @@
+from pydantic_settings import BaseSettings
+from typing import List
+
+
+class Settings(BaseSettings):
+    # ElevenLabs TTS
+    elevenlabs_api_key: str = ""
+    elevenlabs_voice_id: str = "21m00Tcm4TlvDq8ikWAM"
+
+    # Supabase
+    supabase_url: str = "http://localhost:54321"
+    supabase_anon_key: str = ""
+    supabase_service_key: str = ""
+
+    # Redis
+    redis_url: str = "redis://localhost:6379"
+
+    # Whisper
+    whisper_model: str = "base"
+
+    # Ollama (free open-source LLM)
+    ollama_base_url: str = "http://localhost:11434"
+    ollama_model: str = "mistral"
+
+    # CORS
+    cors_origins: List[str] = ["http://localhost:5173", "http://localhost:3000"]
+
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+
+
+settings = Settings()
