@@ -23,7 +23,12 @@ class Settings(BaseSettings):
     ollama_model: str = "mistral"
 
     # CORS
-    cors_origins: List[str] = ["http://localhost:5173", "http://localhost:3000"]
+    # in app/config.py, update cors_origins
+    cors_origins: List[str] = [
+        "http://localhost:5173",  # React frontend
+        "http://localhost:3000",  # alternative frontend
+        "http://localhost:8001",  # backend test page
+    ]
 
     class Config:
         env_file = ".env"
