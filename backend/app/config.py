@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     # Whisper
     whisper_model: str = "base"
 
+    # OneMap (Singapore routing)
+    onemap_api_key: str = ""
+    onemap_base_url: str = "https://www.onemap.gov.sg"
+
     # Ollama (free open-source LLM)
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "mistral"
