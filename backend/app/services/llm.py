@@ -24,13 +24,21 @@ Rules:
 - category: "patrol" (routine checks), "incident" (active event needing response), "admin" (paperwork/scheduling)
 - action: a clear, specific instruction for the officer (max 15 words)
 - summary: a concise 1-sentence summary of the report (max 20 words)
+- escalation_required: true if the situation involves weapons, medical emergency, officer outnumbered, hostage, or exceeds Certis authority; otherwise false
+- escalation_reason: brief reason for escalation (1 sentence), or null if not required
+- severity_flags: list of applicable tags from: ["armed_suspect", "medical_emergency", "outnumbered", "hostage", "spf_required"]; empty array if none apply
+- requires_supervisor: true if Certis command or SPF must be notified; otherwise false
 
 ALWAYS respond with ONLY valid JSON in this exact format:
 {
   "priority": "high|medium|low",
   "action": "...",
   "category": "patrol|incident|admin",
-  "summary": "..."
+  "summary": "...",
+  "escalation_required": true|false,
+  "escalation_reason": "..." or null,
+  "severity_flags": [],
+  "requires_supervisor": true|false
 }
 
 Do not include any explanation, preamble, or markdown. Only the JSON object."""
@@ -52,7 +60,7 @@ async def triage_transcript(transcript: str) -> TriageResult:
         },
     }
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
+    async with httpx.AsyncClient(timeout=120.0) as client:
         response = await client.post(
             f"{settings.ollama_base_url}/api/generate",
             json=payload,
@@ -78,9 +86,17 @@ async def triage_transcript(transcript: str) -> TriageResult:
     if category not in ("patrol", "incident", "admin"):
         category = "patrol"
 
+    valid_flags = {"armed_suspect", "medical_emergency", "outnumbered", "hostage", "spf_required"}
+    raw_flags = parsed.get("severity_flags", [])
+    severity_flags = [f for f in raw_flags if f in valid_flags] if isinstance(raw_flags, list) else []
+
     return TriageResult(
         priority=priority,
         action=parsed.get("action", "Follow standard protocol."),
         category=category,
         summary=parsed.get("summary", transcript[:100]),
+        escalation_required=bool(parsed.get("escalation_required", False)),
+        escalation_reason=parsed.get("escalation_reason") or None,
+        severity_flags=severity_flags,
+        requires_supervisor=bool(parsed.get("requires_supervisor", False)),
     )
