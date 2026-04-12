@@ -18,12 +18,21 @@ class Settings(BaseSettings):
     # Whisper
     whisper_model: str = "base"
 
+    # OneMap (Singapore routing)
+    onemap_api_key: str = ""
+    onemap_base_url: str = "https://www.onemap.gov.sg"
+
     # Ollama (free open-source LLM)
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "mistral"
 
     # CORS
-    cors_origins: List[str] = ["http://localhost:5173", "http://localhost:3000"]
+    # in app/config.py, update cors_origins
+    cors_origins: List[str] = [
+        "http://localhost:5173",  # React frontend
+        "http://localhost:3000",  # alternative frontend
+        "http://localhost:8001",  # backend test page
+    ]
 
     class Config:
         env_file = ".env"

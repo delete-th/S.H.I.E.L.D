@@ -1,31 +1,26 @@
 """
-Speech-to-Text service using OpenAI Whisper (runs locally, free).
-Whisper model is loaded once at startup and reused.
+Speech-to-Text using faster-whisper (Python 3.12 compatible).
+Drop-in replacement for openai-whisper — same interface, faster performance.
 """
-import io
 import tempfile
 import os
-import whisper
+from faster_whisper import WhisperModel
 from app.config import settings
 
-# Load model at module import — this takes a few seconds on first run
-_model: whisper.Whisper | None = None
+_model: WhisperModel | None = None
 
 
-def get_model() -> whisper.Whisper:
+def get_model() -> WhisperModel:
     global _model
     if _model is None:
-        print(f"[STT] Loading Whisper model: {settings.whisper_model}")
-        _model = whisper.load_model(settings.whisper_model)
-        print("[STT] Whisper model loaded.")
+        print(f"[STT] Loading faster-whisper model: {settings.whisper_model}")
+        # device="cpu", compute_type="int8" — works on any Windows machine
+        _model = WhisperModel(settings.whisper_model, device="cpu", compute_type="int8")
+        print("[STT] Model loaded.")
     return _model
 
 
 async def transcribe(audio_bytes: bytes) -> str:
-    """
-    Transcribe raw audio bytes (webm/opus from browser MediaRecorder).
-    Writes to a temp file because Whisper requires a file path.
-    """
     model = get_model()
 
     with tempfile.NamedTemporaryFile(suffix=".webm", delete=False) as tmp:
@@ -33,8 +28,8 @@ async def transcribe(audio_bytes: bytes) -> str:
         tmp_path = tmp.name
 
     try:
-        result = model.transcribe(tmp_path, language="en", fp16=False)
-        transcript = result["text"].strip()
+        segments, _ = model.transcribe(tmp_path, language="en")
+        transcript = " ".join(segment.text for segment in segments).strip()
         return transcript
     finally:
         os.unlink(tmp_path)

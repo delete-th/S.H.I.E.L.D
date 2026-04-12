@@ -1,0 +1,1104 @@
+[
+  {
+    "id": "f94316c4-a459-4183-b790-aa397a55ef0a",
+    "name": "Ms Claire Davies",
+    "nric_last4": "004F",
+    "age": 45,
+    "gender": "Female",
+    "nationality": "Filipino",
+    "description": {
+      "height_cm": 163,
+      "build": "slim",
+      "hair": "short black",
+      "last_seen_wearing": "red jacket"
+    },
+    "known_offences": [
+      "Theft under Section 379 PC",
+      "Outrage of modesty under Section 354 PC",
+      "Disorderly behaviour under MOPA"
+    ],
+    "last_known_location": "Punggol Waterway",
+    "risk_level": "medium",
+    "outstanding_warrant": true,
+    "last_updated": "2026-02-24T10:02:30.459822"
+  },
+  {
+    "id": "dbf02bc6-f19f-4528-9917-3f86bf278466",
+    "name": "Julie Perry",
+    "nric_last4": "156H",
+    "age": 34,
+    "gender": "Female",
+    "nationality": "Singaporean",
+    "description": {
+      "height_cm": 170,
+      "build": "stocky",
+      "hair": "short grey",
+      "last_seen_wearing": "green polo shirt"
+    },
+    "known_offences": [
+      "Mischief under Section 426 PC",
+      "Outrage of modesty under Section 354 PC"
+    ],
+    "last_known_location": "Changi Airport T3",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2026-01-26T04:10:30.459822"
+  },
+  {
+    "id": "74b7e449-96bb-42a3-8006-a2b0a27e6cf9",
+    "name": "Duncan Singh",
+    "nric_last4": "021G",
+    "age": 46,
+    "gender": "Male",
+    "nationality": "Filipino",
+    "description": {
+      "height_cm": 181,
+      "build": "slim",
+      "hair": "dyed blonde",
+      "last_seen_wearing": "yellow raincoat"
+    },
+    "known_offences": [
+      "Theft under Section 379 PC",
+      "Mischief under Section 426 PC"
+    ],
+    "last_known_location": "Pasir Ris Park",
+    "risk_level": "low",
+    "outstanding_warrant": true,
+    "last_updated": "2025-10-31T10:47:30.459822"
+  },
+  {
+    "id": "3f396ab1-b4f6-4146-9b59-366be6dd7c1b",
+    "name": "Mitchell Little",
+    "nric_last4": "212H",
+    "age": 30,
+    "gender": "Male",
+    "nationality": "Singaporean",
+    "description": {
+      "height_cm": 155,
+      "build": "short and stout",
+      "hair": "long brown",
+      "last_seen_wearing": "blue jeans"
+    },
+    "known_offences": [
+      "Theft under Section 379 PC",
+      "Possession of controlled drugs under MDA"
+    ],
+    "last_known_location": "Yishun Bus Interchange",
+    "risk_level": "low",
+    "outstanding_warrant": true,
+    "last_updated": "2026-03-11T11:28:30.459822"
+  },
+  {
+    "id": "ddd41712-acb4-4d2e-8df9-6dcce7bb4275",
+    "name": "Marc Cross",
+    "nric_last4": "927G",
+    "age": 48,
+    "gender": "Male",
+    "nationality": "Indian National",
+    "description": {
+      "height_cm": 170,
+      "build": "medium build",
+      "hair": "short grey",
+      "last_seen_wearing": "blue jeans"
+    },
+    "known_offences": [
+      "Criminal trespass under Section 447 PC",
+      "Possession of controlled drugs under MDA"
+    ],
+    "last_known_location": "Pasir Ris Park",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2026-03-23T16:46:30.463728"
+  },
+  {
+    "id": "b0d03a85-bfa8-4dd0-8861-15340a9c5ab1",
+    "name": "Chloe Ingram-Newton",
+    "nric_last4": "958E",
+    "age": 38,
+    "gender": "Female",
+    "nationality": "Chinese National",
+    "description": {
+      "height_cm": 181,
+      "build": "short and stout",
+      "hair": "dyed blonde",
+      "last_seen_wearing": "yellow raincoat"
+    },
+    "known_offences": [
+      "Cheating under Section 420 PC"
+    ],
+    "last_known_location": "Boon Lay Shopping Centre",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2025-11-21T13:06:30.463728"
+  },
+  {
+    "id": "f131654d-049a-4b3d-93f1-ae2a78902c5c",
+    "name": "Rosemary Nicholls",
+    "nric_last4": "923G",
+    "age": 29,
+    "gender": "Female",
+    "nationality": "Singaporean",
+    "description": {
+      "height_cm": 165,
+      "build": "tall and thin",
+      "hair": "short grey",
+      "last_seen_wearing": "black cap"
+    },
+    "known_offences": [
+      "Voluntarily causing hurt under Section 323 PC",
+      "Criminal trespass under Section 447 PC",
+      "Theft under Section 379 PC"
+    ],
+    "last_known_location": "Woodlands Checkpoint",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2026-03-15T11:29:30.463728"
+  },
+  {
+    "id": "7047e9a9-7347-4dcc-a372-0663f4c3f583",
+    "name": "Chelsea Marshall",
+    "nric_last4": "746C",
+    "age": 17,
+    "gender": "Female",
+    "nationality": "Singaporean",
+    "description": {
+      "height_cm": 170,
+      "build": "stocky",
+      "hair": "bald",
+      "last_seen_wearing": "black cap"
+    },
+    "known_offences": [
+      "Mischief under Section 426 PC",
+      "Outrage of modesty under Section 354 PC",
+      "Voluntarily causing hurt under Section 323 PC"
+    ],
+    "last_known_location": "Boon Lay Shopping Centre",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2025-12-06T08:33:30.463728"
+  },
+  {
+    "id": "29a1a61f-d022-45cc-a67e-bbd3b246993f",
+    "name": "Paul Watson",
+    "nric_last4": "699B",
+    "age": 32,
+    "gender": "Male",
+    "nationality": "Indian National",
+    "description": {
+      "height_cm": 158,
+      "build": "slim",
+      "hair": "short grey",
+      "last_seen_wearing": "blue jeans"
+    },
+    "known_offences": [
+      "Possession of controlled drugs under MDA",
+      "Theft under Section 379 PC",
+      "Outrage of modesty under Section 354 PC"
+    ],
+    "last_known_location": "Bishan Park",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2026-01-04T12:26:30.463728"
+  },
+  {
+    "id": "6320f48e-0dc9-4f34-a1f9-af6faed2e3e3",
+    "name": "Mr John Hall",
+    "nric_last4": "461C",
+    "age": 50,
+    "gender": "Male",
+    "nationality": "Singaporean",
+    "description": {
+      "height_cm": 174,
+      "build": "tall and thin",
+      "hair": "dyed blonde",
+      "last_seen_wearing": "red jacket"
+    },
+    "known_offences": [
+      "Voluntarily causing hurt under Section 323 PC",
+      "Mischief under Section 426 PC"
+    ],
+    "last_known_location": "Bedok North Ave 3",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2025-10-22T00:38:30.463728"
+  },
+  {
+    "id": "b65c2c10-d8eb-46c5-830e-4177f227ce49",
+    "name": "Kirsty Barnes",
+    "nric_last4": "614F",
+    "age": 35,
+    "gender": "Female",
+    "nationality": "Filipino",
+    "description": {
+      "height_cm": 164,
+      "build": "tall and thin",
+      "hair": "bald",
+      "last_seen_wearing": "yellow raincoat"
+    },
+    "known_offences": [
+      "Criminal trespass under Section 447 PC",
+      "Cheating under Section 420 PC"
+    ],
+    "last_known_location": "Geylang Lorong 14",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2026-01-08T07:17:30.463728"
+  },
+  {
+    "id": "20637493-d367-492c-839b-ea93895d5047",
+    "name": "Miss Marilyn Kaur",
+    "nric_last4": "962J",
+    "age": 18,
+    "gender": "Female",
+    "nationality": "Singaporean",
+    "description": {
+      "height_cm": 184,
+      "build": "short and stout",
+      "hair": "short grey",
+      "last_seen_wearing": "grey sweater"
+    },
+    "known_offences": [
+      "Disorderly behaviour under MOPA"
+    ],
+    "last_known_location": "Sengkang Bus Interchange",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2025-10-18T01:46:30.463728"
+  },
+  {
+    "id": "3d717a68-298e-4fc1-b9b3-9ca7c179920b",
+    "name": "Robin Archer",
+    "nric_last4": "060H",
+    "age": 57,
+    "gender": "Male",
+    "nationality": "Singaporean",
+    "description": {
+      "height_cm": 173,
+      "build": "stocky",
+      "hair": "long brown",
+      "last_seen_wearing": "white t-shirt"
+    },
+    "known_offences": [
+      "Disorderly behaviour under MOPA",
+      "Cheating under Section 420 PC"
+    ],
+    "last_known_location": "Yishun Bus Interchange",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2025-11-22T14:02:30.463728"
+  },
+  {
+    "id": "3b9e8279-d073-41be-9a90-05e299a0face",
+    "name": "Anne Brown",
+    "nric_last4": "284E",
+    "age": 27,
+    "gender": "Female",
+    "nationality": "Chinese National",
+    "description": {
+      "height_cm": 180,
+      "build": "slim",
+      "hair": "short grey",
+      "last_seen_wearing": "white t-shirt"
+    },
+    "known_offences": [
+      "Criminal trespass under Section 447 PC"
+    ],
+    "last_known_location": "Clementi MRT",
+    "risk_level": "high",
+    "outstanding_warrant": true,
+    "last_updated": "2026-01-06T22:45:30.463728"
+  },
+  {
+    "id": "989e7adb-9d66-4533-9494-1c70d3591bc8",
+    "name": "Kim Lucas",
+    "nric_last4": "213Z",
+    "age": 17,
+    "gender": "Female",
+    "nationality": "Chinese National",
+    "description": {
+      "height_cm": 173,
+      "build": "tall and thin",
+      "hair": "bald",
+      "last_seen_wearing": "white t-shirt"
+    },
+    "known_offences": [
+      "Criminal trespass under Section 447 PC",
+      "Cheating under Section 420 PC",
+      "Theft under Section 379 PC"
+    ],
+    "last_known_location": "Serangoon NEX",
+    "risk_level": "high",
+    "outstanding_warrant": false,
+    "last_updated": "2025-11-04T17:54:30.463728"
+  },
+  {
+    "id": "36ebda4e-5752-43f7-ba7b-f914d1ae0f03",
+    "name": "Leigh Tucker",
+    "nric_last4": "893G",
+    "age": 57,
+    "gender": "Male",
+    "nationality": "Singaporean",
+    "description": {
+      "height_cm": 159,
+      "build": "slim",
+      "hair": "short black",
+      "last_seen_wearing": "grey sweater"
+    },
+    "known_offences": [
+      "Mischief under Section 426 PC",
+      "Theft under Section 379 PC"
+    ],
+    "last_known_location": "Sengkang Bus Interchange",
+    "risk_level": "high",
+    "outstanding_warrant": false,
+    "last_updated": "2025-12-14T13:53:30.463728"
+  },
+  {
+    "id": "092004b9-568e-482b-8593-d1685b2fc45f",
+    "name": "Janet Anderson",
+    "nric_last4": "714B",
+    "age": 54,
+    "gender": "Female",
+    "nationality": "Indian National",
+    "description": {
+      "height_cm": 174,
+      "build": "tall and thin",
+      "hair": "bald",
+      "last_seen_wearing": "black hoodie"
+    },
+    "known_offences": [
+      "Disorderly behaviour under MOPA",
+      "Mischief under Section 426 PC",
+      "Criminal trespass under Section 447 PC"
+    ],
+    "last_known_location": "Bedok North Ave 3",
+    "risk_level": "high",
+    "outstanding_warrant": true,
+    "last_updated": "2026-03-15T04:12:30.463728"
+  },
+  {
+    "id": "2ceff128-f86a-4935-b3b2-e197b4885b2d",
+    "name": "Anna Brown",
+    "nric_last4": "311H",
+    "age": 20,
+    "gender": "Female",
+    "nationality": "Singaporean",
+    "description": {
+      "height_cm": 176,
+      "build": "medium build",
+      "hair": "dyed blonde",
+      "last_seen_wearing": "black hoodie"
+    },
+    "known_offences": [
+      "Disorderly behaviour under MOPA"
+    ],
+    "last_known_location": "Sengkang Bus Interchange",
+    "risk_level": "high",
+    "outstanding_warrant": true,
+    "last_updated": "2026-02-16T22:42:30.463728"
+  },
+  {
+    "id": "a84805ae-c66b-4a8c-a87c-8d7785a31702",
+    "name": "Duncan Robertson-Hayes",
+    "nric_last4": "283C",
+    "age": 54,
+    "gender": "Male",
+    "nationality": "Filipino",
+    "description": {
+      "height_cm": 155,
+      "build": "stocky",
+      "hair": "long brown",
+      "last_seen_wearing": "blue jeans"
+    },
+    "known_offences": [
+      "Possession of controlled drugs under MDA",
+      "Outrage of modesty under Section 354 PC",
+      "Mischief under Section 426 PC"
+    ],
+    "last_known_location": "Bugis Junction",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2026-04-06T13:45:30.463728"
+  },
+  {
+    "id": "88c380a2-5c65-4334-b893-eae3036ad269",
+    "name": "Dr Glenn Ellis",
+    "nric_last4": "310G",
+    "age": 54,
+    "gender": "Male",
+    "nationality": "Filipino",
+    "description": {
+      "height_cm": 158,
+      "build": "slim",
+      "hair": "short grey",
+      "last_seen_wearing": "yellow raincoat"
+    },
+    "known_offences": [
+      "Mischief under Section 426 PC",
+      "Criminal trespass under Section 447 PC"
+    ],
+    "last_known_location": "Pasir Ris Park",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2025-10-23T09:16:30.463728"
+  },
+  {
+    "id": "abbc2292-4123-4d96-8be0-a86fe272afcf",
+    "name": "Ms Paula Holden",
+    "nric_last4": "904G",
+    "age": 58,
+    "gender": "Female",
+    "nationality": "Indian National",
+    "description": {
+      "height_cm": 176,
+      "build": "slim",
+      "hair": "short grey",
+      "last_seen_wearing": "yellow raincoat"
+    },
+    "known_offences": [
+      "Mischief under Section 426 PC"
+    ],
+    "last_known_location": "Bishan Park",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2026-01-29T05:55:30.463728"
+  },
+  {
+    "id": "b0e94e61-27c8-40bf-9ef0-70d5b8abf3cd",
+    "name": "Mrs Marian Thomas",
+    "nric_last4": "954J",
+    "age": 41,
+    "gender": "Female",
+    "nationality": "Indian National",
+    "description": {
+      "height_cm": 158,
+      "build": "slim",
+      "hair": "dyed blonde",
+      "last_seen_wearing": "red jacket"
+    },
+    "known_offences": [
+      "Cheating under Section 420 PC",
+      "Mischief under Section 426 PC"
+    ],
+    "last_known_location": "Yishun Bus Interchange",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2025-12-24T02:29:30.463728"
+  },
+  {
+    "id": "9447dec4-cec9-4d27-8f7b-00ac3cc178fa",
+    "name": "Kathleen Stokes",
+    "nric_last4": "329Z",
+    "age": 44,
+    "gender": "Female",
+    "nationality": "Indian National",
+    "description": {
+      "height_cm": 157,
+      "build": "slim",
+      "hair": "short black",
+      "last_seen_wearing": "white t-shirt"
+    },
+    "known_offences": [
+      "Mischief under Section 426 PC",
+      "Disorderly behaviour under MOPA"
+    ],
+    "last_known_location": "Raffles Place MRT",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2025-11-10T08:00:30.463728"
+  },
+  {
+    "id": "d325f942-1a50-4730-8a15-101324f24b9c",
+    "name": "Lorraine Brennan",
+    "nric_last4": "136G",
+    "age": 59,
+    "gender": "Female",
+    "nationality": "Singaporean",
+    "description": {
+      "height_cm": 185,
+      "build": "stocky",
+      "hair": "dyed blonde",
+      "last_seen_wearing": "grey sweater"
+    },
+    "known_offences": [
+      "Mischief under Section 426 PC",
+      "Possession of controlled drugs under MDA"
+    ],
+    "last_known_location": "Pasir Ris Park",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2026-02-11T22:13:30.463728"
+  },
+  {
+    "id": "042e64df-4657-49a7-bcf5-0a0970c2905e",
+    "name": "Dr Kathleen Cole",
+    "nric_last4": "758I",
+    "age": 24,
+    "gender": "Female",
+    "nationality": "Filipino",
+    "description": {
+      "height_cm": 174,
+      "build": "short and stout",
+      "hair": "short black",
+      "last_seen_wearing": "grey sweater"
+    },
+    "known_offences": [
+      "Voluntarily causing hurt under Section 323 PC"
+    ],
+    "last_known_location": "Punggol Waterway",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2026-01-13T14:35:30.463728"
+  },
+  {
+    "id": "7f0f9ded-5086-4f58-951b-80221908e943",
+    "name": "Duncan Edwards",
+    "nric_last4": "541Z",
+    "age": 26,
+    "gender": "Male",
+    "nationality": "Singaporean",
+    "description": {
+      "height_cm": 157,
+      "build": "short and stout",
+      "hair": "long brown",
+      "last_seen_wearing": "black cap"
+    },
+    "known_offences": [
+      "Cheating under Section 420 PC",
+      "Voluntarily causing hurt under Section 323 PC"
+    ],
+    "last_known_location": "Changi Airport T3",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2025-11-15T06:30:30.463728"
+  },
+  {
+    "id": "06cb6600-2025-48e0-be31-fd00c04b9372",
+    "name": "Billy Rowley-Gray",
+    "nric_last4": "166E",
+    "age": 26,
+    "gender": "Male",
+    "nationality": "Indian National",
+    "description": {
+      "height_cm": 176,
+      "build": "tall and thin",
+      "hair": "short grey",
+      "last_seen_wearing": "yellow raincoat"
+    },
+    "known_offences": [
+      "Possession of controlled drugs under MDA",
+      "Mischief under Section 426 PC"
+    ],
+    "last_known_location": "Pasir Ris Park",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2026-01-27T03:52:30.463728"
+  },
+  {
+    "id": "7131a7ec-cd36-4917-8dda-ce1a4e40a1da",
+    "name": "Melissa Browne",
+    "nric_last4": "603J",
+    "age": 50,
+    "gender": "Female",
+    "nationality": "Singaporean",
+    "description": {
+      "height_cm": 155,
+      "build": "medium build",
+      "hair": "bald",
+      "last_seen_wearing": "red jacket"
+    },
+    "known_offences": [
+      "Possession of controlled drugs under MDA"
+    ],
+    "last_known_location": "Toa Payoh Central",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2025-12-20T20:27:30.463728"
+  },
+  {
+    "id": "98e4ddbe-6b98-4444-9eff-58c5d2347ae3",
+    "name": "Mrs Dorothy Wright",
+    "nric_last4": "758F",
+    "age": 51,
+    "gender": "Female",
+    "nationality": "Singaporean",
+    "description": {
+      "height_cm": 167,
+      "build": "slim",
+      "hair": "short grey",
+      "last_seen_wearing": "black hoodie"
+    },
+    "known_offences": [
+      "Mischief under Section 426 PC",
+      "Outrage of modesty under Section 354 PC"
+    ],
+    "last_known_location": "Bishan Park",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2025-10-28T12:17:30.463728"
+  },
+  {
+    "id": "115b08b8-677f-430f-9037-5791ce7016a5",
+    "name": "Duncan Sims",
+    "nric_last4": "038J",
+    "age": 42,
+    "gender": "Male",
+    "nationality": "Indian National",
+    "description": {
+      "height_cm": 181,
+      "build": "stocky",
+      "hair": "short black",
+      "last_seen_wearing": "black cap"
+    },
+    "known_offences": [
+      "Criminal trespass under Section 447 PC"
+    ],
+    "last_known_location": "Yishun Bus Interchange",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2025-12-29T15:48:30.463728"
+  },
+  {
+    "id": "740c646b-4f47-41e1-a643-372f4f4ec7ae",
+    "name": "Molly Blake",
+    "nric_last4": "315B",
+    "age": 31,
+    "gender": "Female",
+    "nationality": "Filipino",
+    "description": {
+      "height_cm": 171,
+      "build": "medium build",
+      "hair": "bald",
+      "last_seen_wearing": "green polo shirt"
+    },
+    "known_offences": [
+      "Voluntarily causing hurt under Section 323 PC",
+      "Mischief under Section 426 PC",
+      "Theft under Section 379 PC"
+    ],
+    "last_known_location": "Woodlands Checkpoint",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2026-03-01T05:31:30.463728"
+  },
+  {
+    "id": "00b1243b-0742-4e11-bc02-4fe93f1c9392",
+    "name": "Kyle Patel-Walters",
+    "nric_last4": "477H",
+    "age": 57,
+    "gender": "Male",
+    "nationality": "Filipino",
+    "description": {
+      "height_cm": 175,
+      "build": "short and stout",
+      "hair": "bald",
+      "last_seen_wearing": "green polo shirt"
+    },
+    "known_offences": [
+      "Cheating under Section 420 PC"
+    ],
+    "last_known_location": "Orchard Road",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2026-01-29T07:32:30.466129"
+  },
+  {
+    "id": "5c6692ca-34dc-4f45-bdb2-2ed7fbe9f81f",
+    "name": "Dr Katie Wheeler",
+    "nric_last4": "040F",
+    "age": 49,
+    "gender": "Female",
+    "nationality": "Chinese National",
+    "description": {
+      "height_cm": 157,
+      "build": "slim",
+      "hair": "dyed blonde",
+      "last_seen_wearing": "black cap"
+    },
+    "known_offences": [
+      "Theft under Section 379 PC",
+      "Criminal trespass under Section 447 PC"
+    ],
+    "last_known_location": "Choa Chu Kang MRT",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2025-12-09T09:26:30.466129"
+  },
+  {
+    "id": "d1b08c7a-b4ed-44fd-89a2-a3beb8c16563",
+    "name": "Mr Mohamed Stanley",
+    "nric_last4": "183B",
+    "age": 45,
+    "gender": "Male",
+    "nationality": "Filipino",
+    "description": {
+      "height_cm": 175,
+      "build": "medium build",
+      "hair": "short black",
+      "last_seen_wearing": "red jacket"
+    },
+    "known_offences": [
+      "Cheating under Section 420 PC",
+      "Criminal trespass under Section 447 PC",
+      "Possession of controlled drugs under MDA"
+    ],
+    "last_known_location": "Pasir Ris Park",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2026-01-27T13:09:30.466129"
+  },
+  {
+    "id": "0f4c57e4-09e5-4455-a1c8-a99ce0b92e1a",
+    "name": "Beverley Smith",
+    "nric_last4": "576B",
+    "age": 60,
+    "gender": "Female",
+    "nationality": "Chinese National",
+    "description": {
+      "height_cm": 158,
+      "build": "short and stout",
+      "hair": "short grey",
+      "last_seen_wearing": "grey sweater"
+    },
+    "known_offences": [
+      "Voluntarily causing hurt under Section 323 PC",
+      "Cheating under Section 420 PC"
+    ],
+    "last_known_location": "Orchard Road",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2026-01-10T15:54:30.466129"
+  },
+  {
+    "id": "07e64daf-4389-487b-9bdb-f0e29a4e19d1",
+    "name": "Marilyn Lewis",
+    "nric_last4": "593G",
+    "age": 25,
+    "gender": "Female",
+    "nationality": "Chinese National",
+    "description": {
+      "height_cm": 181,
+      "build": "medium build",
+      "hair": "dyed blonde",
+      "last_seen_wearing": "white t-shirt"
+    },
+    "known_offences": [
+      "Outrage of modesty under Section 354 PC",
+      "Possession of controlled drugs under MDA",
+      "Voluntarily causing hurt under Section 323 PC"
+    ],
+    "last_known_location": "Jurong East MRT",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2026-02-14T14:46:30.466129"
+  },
+  {
+    "id": "4ccea4b4-3810-4f74-9b78-5b95322019ec",
+    "name": "Samantha Russell",
+    "nric_last4": "210B",
+    "age": 29,
+    "gender": "Female",
+    "nationality": "Filipino",
+    "description": {
+      "height_cm": 179,
+      "build": "short and stout",
+      "hair": "dyed blonde",
+      "last_seen_wearing": "black hoodie"
+    },
+    "known_offences": [
+      "Disorderly behaviour under MOPA",
+      "Outrage of modesty under Section 354 PC",
+      "Possession of controlled drugs under MDA"
+    ],
+    "last_known_location": "Woodlands Checkpoint",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2026-02-22T02:46:30.466129"
+  },
+  {
+    "id": "7bea8ab7-1eab-4795-8935-d530e580bd3e",
+    "name": "Shane Barker",
+    "nric_last4": "446D",
+    "age": 63,
+    "gender": "Male",
+    "nationality": "Indian National",
+    "description": {
+      "height_cm": 174,
+      "build": "stocky",
+      "hair": "short grey",
+      "last_seen_wearing": "red jacket"
+    },
+    "known_offences": [
+      "Criminal trespass under Section 447 PC",
+      "Voluntarily causing hurt under Section 323 PC",
+      "Cheating under Section 420 PC"
+    ],
+    "last_known_location": "HDB Block 412 Ang Mo Kio",
+    "risk_level": "low",
+    "outstanding_warrant": true,
+    "last_updated": "2025-12-18T10:46:30.466129"
+  },
+  {
+    "id": "4dcb1a66-6095-447a-8ce2-f2bbe895e781",
+    "name": "Amelia Barnett",
+    "nric_last4": "541D",
+    "age": 41,
+    "gender": "Female",
+    "nationality": "Filipino",
+    "description": {
+      "height_cm": 159,
+      "build": "stocky",
+      "hair": "short black",
+      "last_seen_wearing": "yellow raincoat"
+    },
+    "known_offences": [
+      "Mischief under Section 426 PC",
+      "Disorderly behaviour under MOPA"
+    ],
+    "last_known_location": "Pasir Ris Park",
+    "risk_level": "high",
+    "outstanding_warrant": false,
+    "last_updated": "2026-02-27T17:07:30.466129"
+  },
+  {
+    "id": "a3739d90-64b8-4c2d-8ef8-c49f0da88c34",
+    "name": "Mr Leon Edwards",
+    "nric_last4": "098F",
+    "age": 44,
+    "gender": "Male",
+    "nationality": "Singaporean",
+    "description": {
+      "height_cm": 168,
+      "build": "slim",
+      "hair": "short grey",
+      "last_seen_wearing": "green polo shirt"
+    },
+    "known_offences": [
+      "Outrage of modesty under Section 354 PC"
+    ],
+    "last_known_location": "Orchard Road",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2026-03-15T02:54:30.466129"
+  },
+  {
+    "id": "0a556a8c-e2bb-4d9d-b3a3-c1fb97da3fc5",
+    "name": "Holly Wood",
+    "nric_last4": "128C",
+    "age": 26,
+    "gender": "Female",
+    "nationality": "Indian National",
+    "description": {
+      "height_cm": 169,
+      "build": "short and stout",
+      "hair": "short black",
+      "last_seen_wearing": "white t-shirt"
+    },
+    "known_offences": [
+      "Possession of controlled drugs under MDA"
+    ],
+    "last_known_location": "HDB Block 412 Ang Mo Kio",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2025-11-05T09:08:30.467730"
+  },
+  {
+    "id": "ff9c9692-649d-4279-a15a-082f38ac4b00",
+    "name": "John Rees",
+    "nric_last4": "212Z",
+    "age": 35,
+    "gender": "Male",
+    "nationality": "Filipino",
+    "description": {
+      "height_cm": 169,
+      "build": "slim",
+      "hair": "short black",
+      "last_seen_wearing": "yellow raincoat"
+    },
+    "known_offences": [
+      "Theft under Section 379 PC",
+      "Disorderly behaviour under MOPA",
+      "Possession of controlled drugs under MDA"
+    ],
+    "last_known_location": "Choa Chu Kang MRT",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2025-12-22T00:56:30.467730"
+  },
+  {
+    "id": "fba928cb-8754-49ad-a4cb-52feb79a1dbf",
+    "name": "Lynda Smith",
+    "nric_last4": "516I",
+    "age": 32,
+    "gender": "Female",
+    "nationality": "Chinese National",
+    "description": {
+      "height_cm": 157,
+      "build": "short and stout",
+      "hair": "dyed blonde",
+      "last_seen_wearing": "black hoodie"
+    },
+    "known_offences": [
+      "Cheating under Section 420 PC",
+      "Theft under Section 379 PC"
+    ],
+    "last_known_location": "Clementi MRT",
+    "risk_level": "high",
+    "outstanding_warrant": false,
+    "last_updated": "2026-04-05T13:45:30.467730"
+  },
+  {
+    "id": "f4b7201a-5270-45fe-81ea-098a48ecf142",
+    "name": "Mr Charlie Moore",
+    "nric_last4": "261J",
+    "age": 39,
+    "gender": "Male",
+    "nationality": "Chinese National",
+    "description": {
+      "height_cm": 159,
+      "build": "slim",
+      "hair": "bald",
+      "last_seen_wearing": "green polo shirt"
+    },
+    "known_offences": [
+      "Voluntarily causing hurt under Section 323 PC",
+      "Outrage of modesty under Section 354 PC",
+      "Disorderly behaviour under MOPA"
+    ],
+    "last_known_location": "Bedok North Ave 3",
+    "risk_level": "high",
+    "outstanding_warrant": false,
+    "last_updated": "2026-02-22T21:31:30.467730"
+  },
+  {
+    "id": "e838eda7-da53-4148-a9f8-afd389be36dd",
+    "name": "Pamela Mitchell",
+    "nric_last4": "201A",
+    "age": 19,
+    "gender": "Female",
+    "nationality": "Chinese National",
+    "description": {
+      "height_cm": 184,
+      "build": "stocky",
+      "hair": "dyed blonde",
+      "last_seen_wearing": "black cap"
+    },
+    "known_offences": [
+      "Cheating under Section 420 PC",
+      "Voluntarily causing hurt under Section 323 PC",
+      "Theft under Section 379 PC"
+    ],
+    "last_known_location": "HDB Block 412 Ang Mo Kio",
+    "risk_level": "low",
+    "outstanding_warrant": true,
+    "last_updated": "2026-03-28T05:14:30.467730"
+  },
+  {
+    "id": "f86a27cd-f37d-4178-8750-2d706c1febc4",
+    "name": "Mrs Josephine Webb",
+    "nric_last4": "744H",
+    "age": 24,
+    "gender": "Female",
+    "nationality": "Indian National",
+    "description": {
+      "height_cm": 165,
+      "build": "medium build",
+      "hair": "short grey",
+      "last_seen_wearing": "yellow raincoat"
+    },
+    "known_offences": [
+      "Possession of controlled drugs under MDA",
+      "Outrage of modesty under Section 354 PC"
+    ],
+    "last_known_location": "Orchard Road",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2025-11-06T20:01:30.467730"
+  },
+  {
+    "id": "0545cc61-39e5-452d-9f5e-bb8d4a6d0650",
+    "name": "Samantha Bennett-Day",
+    "nric_last4": "132H",
+    "age": 37,
+    "gender": "Female",
+    "nationality": "Filipino",
+    "description": {
+      "height_cm": 177,
+      "build": "tall and thin",
+      "hair": "long brown",
+      "last_seen_wearing": "yellow raincoat"
+    },
+    "known_offences": [
+      "Cheating under Section 420 PC",
+      "Theft under Section 379 PC"
+    ],
+    "last_known_location": "Raffles Place MRT",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2025-10-29T00:31:30.467730"
+  },
+  {
+    "id": "f4111b04-5b98-4407-ba0e-3d50681952d2",
+    "name": "Katy Tyler-Newton",
+    "nric_last4": "571A",
+    "age": 40,
+    "gender": "Female",
+    "nationality": "Malaysian",
+    "description": {
+      "height_cm": 182,
+      "build": "short and stout",
+      "hair": "short grey",
+      "last_seen_wearing": "black hoodie"
+    },
+    "known_offences": [
+      "Mischief under Section 426 PC"
+    ],
+    "last_known_location": "Sengkang Bus Interchange",
+    "risk_level": "medium",
+    "outstanding_warrant": false,
+    "last_updated": "2026-01-01T07:33:30.467730"
+  },
+  {
+    "id": "d635a064-2fbb-4bcd-9909-6be518f1976d",
+    "name": "Dr Antony Haynes",
+    "nric_last4": "434B",
+    "age": 60,
+    "gender": "Male",
+    "nationality": "Filipino",
+    "description": {
+      "height_cm": 159,
+      "build": "short and stout",
+      "hair": "bald",
+      "last_seen_wearing": "black cap"
+    },
+    "known_offences": [
+      "Possession of controlled drugs under MDA",
+      "Mischief under Section 426 PC"
+    ],
+    "last_known_location": "Bugis Junction",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2025-11-28T12:37:30.467730"
+  },
+  {
+    "id": "92101d9e-3b1e-41c6-8581-bde8c9e3276a",
+    "name": "Carl Griffiths",
+    "nric_last4": "772J",
+    "age": 33,
+    "gender": "Male",
+    "nationality": "Chinese National",
+    "description": {
+      "height_cm": 177,
+      "build": "tall and thin",
+      "hair": "long brown",
+      "last_seen_wearing": "white t-shirt"
+    },
+    "known_offences": [
+      "Mischief under Section 426 PC"
+    ],
+    "last_known_location": "Bedok North Ave 3",
+    "risk_level": "low",
+    "outstanding_warrant": false,
+    "last_updated": "2026-03-18T03:41:30.467730"
+  }
+]
