@@ -30,3 +30,7 @@ class Events:
     # Intelligence events
     INTELLIGENCE_RESULT = "intelligence.result"
     OFFENDER_MATCH = "offender.match"
+
+    # Escalation events
+    ESCALATION_TRIGGERED = "escalation.triggered"
+    SUPERVISOR_NOTIFIED = "supervisor.notified"

@@ -11,7 +11,12 @@ Usage:
   async for frame_data in handler.stream_frames():
       # frame_data is a dict with camera_id, timestamp, jpeg bytes, base64
 """
-import cv2
+try:
+    import cv2
+    CV2_AVAILABLE = True
+except ImportError:
+    cv2 = None
+    CV2_AVAILABLE = False
 import base64
 import asyncio
 from datetime import datetime
@@ -36,7 +41,7 @@ class CCTVHandler:
         self.max_frames = max_frames
         self._running = False
 
-    def _get_capture(self) -> cv2.VideoCapture:
+    def _get_capture(self) -> "cv2.VideoCapture":
         """Open the correct video source."""
         if self.source == "webcam":
             cap = cv2.VideoCapture(0)  # 0 = default webcam

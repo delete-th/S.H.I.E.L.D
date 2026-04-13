@@ -1,49 +1,56 @@
 """
-CRUD endpoints for patrol tasks.
-In a full deployment these would read/write to Supabase.
-For now, an in-memory store is used as a working placeholder.
+CRUD endpoints for patrol tasks — backed by Supabase.
 """
 from fastapi import APIRouter, HTTPException
 from app.models.schemas import Task, TaskCreate
-from datetime import datetime
-import uuid
+from app.services.db import get_supabase
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
-
-# In-memory task store — replace with Supabase client calls
-_tasks: dict[str, Task] = {}
 
 
 @router.get("", response_model=list[Task])
 async def list_tasks():
-    return sorted(_tasks.values(), key=lambda t: t.created_at, reverse=True)
+    sb = get_supabase()
+    res = sb.table("tasks").select("*").order("t_created_at", desc=True).execute()
+    return [Task.model_validate(row) for row in res.data]
 
 
 @router.post("", response_model=Task, status_code=201)
 async def create_task(data: TaskCreate):
+    sb = get_supabase()
     task = Task(
-        id=str(uuid.uuid4()),
         officer_id=data.officer_id,
         priority=data.priority,
         category=data.category,
         action=data.action,
         summary=data.summary,
-        created_at=datetime.utcnow(),
     )
-    _tasks[task.id] = task
-    return task
+    res = sb.table("tasks").insert(task.model_dump(by_alias=True, mode="json", exclude_none=True)).execute()
+    return Task.model_validate(res.data[0])
 
 
 @router.get("/{task_id}", response_model=Task)
 async def get_task(task_id: str):
-    task = _tasks.get(task_id)
-    if not task:
+    sb = get_supabase()
+    res = sb.table("tasks").select("*").eq("t_id", task_id).execute()
+    if not res.data:
         raise HTTPException(status_code=404, detail="Task not found.")
-    return task
+    return Task.model_validate(res.data[0])
+
+
+@router.patch("/{task_id}", response_model=Task)
+async def update_task(task_id: str, resolved: bool):
+    sb = get_supabase()
+    res = sb.table("tasks").update({"t_resolved": resolved}).eq("t_id", task_id).execute()
+    if not res.data:
+        raise HTTPException(status_code=404, detail="Task not found.")
+    return Task.model_validate(res.data[0])
 
 
 @router.delete("/{task_id}", status_code=204)
 async def delete_task(task_id: str):
-    if task_id not in _tasks:
+    sb = get_supabase()
+    res = sb.table("tasks").select("t_id").eq("t_id", task_id).execute()
+    if not res.data:
         raise HTTPException(status_code=404, detail="Task not found.")
-    del _tasks[task_id]
+    sb.table("tasks").delete().eq("t_id", task_id).execute()
