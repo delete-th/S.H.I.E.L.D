@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from app.config import settings
-from app.routers import audio, triage, tasks, cctv, coordination, intelligence, escalation
+from app.routers import audio, triage, tasks, cctv, coordination, intelligence, escalation, pursuit, missing_person
 from app.services.cctv import cctv_manager, CCTVHandler
 
 app = FastAPI(
@@ -27,6 +27,8 @@ app.include_router(cctv.router)
 app.include_router(coordination.router)
 app.include_router(intelligence.router)
 app.include_router(escalation.router)
+app.include_router(pursuit.router)
+app.include_router(missing_person.router)
 
 
 @app.on_event("startup")
