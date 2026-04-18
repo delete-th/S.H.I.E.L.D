@@ -13,6 +13,26 @@ class TriageResult(BaseModel):
     escalation_reason: Optional[str] = None
     severity_flags: List[str] = []
     requires_supervisor: bool = False
+    missing_fields: List[str] = []
+
+
+class IncidentReport(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="r_id")
+    report_number: str = Field(alias="r_report_number")
+    task_id: Optional[str] = Field(default=None, alias="r_task_id")
+    officer_id: Optional[str] = Field(default=None, alias="r_officer_id")
+    incident_type: str = Field(alias="r_incident_type")
+    location: Optional[str] = Field(default=None, alias="r_location")
+    date_time: datetime = Field(alias="r_date_time")
+    description: str = Field(alias="r_description")
+    actions_taken: str = Field(alias="r_actions_taken")
+    persons_involved: List[str] = Field(default_factory=list, alias="r_persons_involved")
+    evidence: List[str] = Field(default_factory=list, alias="r_evidence")
+    follow_up_required: bool = Field(default=False, alias="r_follow_up_required")
+    status: Literal["draft", "submitted", "approved"] = Field(default="draft", alias="r_status")
+    created_at: datetime = Field(default_factory=datetime.utcnow, alias="r_created_at")
 
 
 class Task(BaseModel):

@@ -14,7 +14,13 @@ import tempfile
 import numpy as np
 from datetime import datetime
 from typing import Optional, Callable
-from deepface import DeepFace
+
+try:
+    from deepface import DeepFace
+    DEEPFACE_AVAILABLE = True
+except ImportError:
+    DEEPFACE_AVAILABLE = False
+    print("[FaceSearch] deepface not installed — face search disabled.")
 
 # --- Configuration ---
 FACES_DIR = os.path.join(
@@ -28,6 +34,8 @@ MATCH_THRESHOLD = 0.4
 
 def extract_embedding(image_path: str) -> Optional[np.ndarray]:
     """Extract face embedding from an image file path."""
+    if not DEEPFACE_AVAILABLE:
+        return None
     try:
         result = DeepFace.represent(
             img_path=image_path,
@@ -198,6 +206,8 @@ def _search_frame(
         frame_path = tmp.name
 
     try:
+        if not DEEPFACE_AVAILABLE:
+            return None
         faces = DeepFace.represent(
             img_path=frame_path,
             model_name=MODEL_NAME,

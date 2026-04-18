@@ -1,19 +1,59 @@
 import { useState, useEffect, useRef } from "react";
 import useAudioStream from "../hooks/useAudioStream.ts";
+import useWakeWord from "../hooks/useWakeWord.ts";
 
-export default function WalkieTalkie({ onTranscript, onTriageResult }) {
+export default function WalkieTalkie({ onTranscript, onTriageResult, onConnectionChange }) {
   const [isPressed, setIsPressed] = useState(false);
-  const [status, setStatus] = useState("idle"); // idle | recording | processing | speaking
+  const [status, setStatus] = useState("idle");
   const [bars, setBars] = useState(Array(12).fill(0.3));
+  const [wakeWordEnabled, setWakeWordEnabled] = useState(true);
+  const [followUpPrompt, setFollowUpPrompt] = useState(null);
   const animRef = useRef(null);
+  const autoStopRef = useRef(null);
+  const isPressedRef = useRef(false);
+
+  const handleFollowUp = (missing, prompt) => {
+    setFollowUpPrompt({ missing, prompt });
+    setTimeout(() => setFollowUpPrompt(null), 10000);
+  };
 
   const { startRecording, stopRecording, isConnected } = useAudioStream({
     onTranscript,
     onTriageResult,
     onStatusChange: setStatus,
+    onFollowUp: handleFollowUp,
   });
 
-  // Animate audio bars while recording
+  // Bubble connection state up to Dashboard
+  useEffect(() => {
+    onConnectionChange?.(isConnected);
+  }, [isConnected, onConnectionChange]);
+
+  useEffect(() => {
+    isPressedRef.current = isPressed;
+  }, [isPressed]);
+
+  const handleWakeWord = async () => {
+    if (!isConnected || isPressedRef.current) return;
+    setIsPressed(true);
+    isPressedRef.current = true;
+    setStatus("recording");
+    await startRecording();
+    autoStopRef.current = setTimeout(async () => {
+      if (isPressedRef.current) {
+        setIsPressed(false);
+        isPressedRef.current = false;
+        setStatus("processing");
+        await stopRecording();
+      }
+    }, 5000);
+  };
+
+  useWakeWord({
+    enabled: wakeWordEnabled && isConnected && !isPressed,
+    onWakeWordDetected: handleWakeWord,
+  });
+
   useEffect(() => {
     if (isPressed) {
       animRef.current = setInterval(() => {
@@ -27,14 +67,18 @@ export default function WalkieTalkie({ onTranscript, onTriageResult }) {
   }, [isPressed]);
 
   const handlePressStart = async () => {
-    if (!isConnected) return;
+    if (!isConnected || isPressed) return;
+    clearTimeout(autoStopRef.current);
     setIsPressed(true);
+    isPressedRef.current = true;
     setStatus("recording");
     await startRecording();
   };
 
   const handlePressEnd = async () => {
+    clearTimeout(autoStopRef.current);
     setIsPressed(false);
+    isPressedRef.current = false;
     setStatus("processing");
     await stopRecording();
   };
@@ -50,18 +94,18 @@ export default function WalkieTalkie({ onTranscript, onTriageResult }) {
     idle: "STANDBY",
     recording: "● TRANSMITTING",
     processing: "⟳ PROCESSING",
-    speaking: "▶ DISPATCH RESPONSE",
+    speaking: "▶ JARVIS RESPONDING",
   };
 
   return (
-    <div className="flex flex-col items-center gap-6 p-6 bg-certis-panel border border-certis-border rounded-2xl">
+    <div className="flex flex-col items-center gap-4 p-6 bg-certis-panel border border-certis-border rounded-2xl w-full">
       {/* Status */}
       <div className={`text-xs font-bold tracking-widest ${statusColors[status]}`}>
         {statusLabels[status]}
       </div>
 
-      {/* Audio visualizer bars */}
-      <div className="flex items-center gap-1 h-12">
+      {/* Audio bars */}
+      <div className="flex items-center gap-1 h-10">
         {bars.map((h, i) => (
           <div
             key={i}
@@ -81,7 +125,7 @@ export default function WalkieTalkie({ onTranscript, onTriageResult }) {
         onTouchEnd={(e) => { e.preventDefault(); handlePressEnd(); }}
         disabled={!isConnected}
         className={`
-          relative w-32 h-32 rounded-full font-bold text-sm tracking-widest
+          w-28 h-28 rounded-full font-bold text-sm tracking-widest
           transition-all duration-150 select-none
           ${isPressed
             ? "bg-certis-accent scale-95 shadow-[0_0_30px_rgba(233,69,96,0.6)]"
@@ -91,16 +135,35 @@ export default function WalkieTalkie({ onTranscript, onTriageResult }) {
           border-2 border-certis-accent
         `}
       >
-        <span className="block text-center">
-          {isPressed ? "RELEASE" : "PUSH TO TALK"}
-        </span>
+        {isPressed ? "RELEASE" : "PUSH TO\nTALK"}
       </button>
 
-      {/* Connection indicator */}
-      <div className="flex items-center gap-2 text-xs text-gray-500">
-        <div className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-400" : "bg-red-500"}`} />
-        {isConnected ? "CONNECTED TO DISPATCH" : "CONNECTING..."}
+      {/* Connection + JARVIS toggle row */}
+      <div className="flex items-center gap-3 text-xs">
+        <div className="flex items-center gap-1.5 text-gray-500">
+          <div className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-400" : "bg-red-500 animate-pulse"}`} />
+          {isConnected ? "CONNECTED" : "CONNECTING..."}
+        </div>
+        <span className="text-gray-600">|</span>
+        <button
+          onClick={() => setWakeWordEnabled((v) => !v)}
+          className={`px-2 py-0.5 rounded-full border transition-colors ${
+            wakeWordEnabled
+              ? "border-green-500 text-green-400 bg-green-500/10"
+              : "border-gray-600 text-gray-500"
+          }`}
+        >
+          JARVIS {wakeWordEnabled ? "ON" : "OFF"}
+        </button>
       </div>
+
+      {/* Follow-up prompt */}
+      {followUpPrompt && (
+        <div className="w-full p-3 bg-yellow-900/30 border border-yellow-600/50 rounded-lg text-xs">
+          <p className="text-yellow-400 font-bold tracking-widest mb-1">JARVIS NEEDS MORE INFO</p>
+          <p className="text-yellow-200">{followUpPrompt.prompt}</p>
+        </div>
+      )}
     </div>
   );
 }

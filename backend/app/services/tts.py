@@ -1,38 +1,91 @@
 """
-Text-to-Speech service using ElevenLabs API.
-Falls back to an empty bytes response if the API key is not configured.
+Text-to-Speech service using Inworld AI API.
+
+Primary:  HTTP streaming  POST https://api.inworld.ai/tts/v1/voice:stream
+          → yields MP3 chunks as they arrive (low latency)
+Fallback: Non-streaming   POST https://api.inworld.ai/tts/v1/voice
+          → returns full MP3 in one response
+
+Auth: Authorization: Basic <api-key>  (key is already base64-encoded by Inworld)
 """
+import base64
+import json
 import httpx
+from typing import AsyncGenerator
 from app.config import settings
 
+_TTS_URL        = "https://api.inworld.ai/tts/v1/voice"
+_TTS_STREAM_URL = "https://api.inworld.ai/tts/v1/voice:stream"
+_MODEL_ID       = "inworld-tts-1.5-max"
 
-async def synthesize(text: str) -> bytes:
-    """Convert text to speech audio bytes (MP3) via ElevenLabs."""
-    if not settings.elevenlabs_api_key:
-        print("[TTS] ElevenLabs API key not set — skipping TTS.")
-        return b""
 
-    url = f"https://api.elevenlabs.io/v1/text-to-speech/{settings.elevenlabs_voice_id}"
-
-    headers = {
-        "xi-api-key": settings.elevenlabs_api_key,
+def _headers() -> dict:
+    return {
+        "Authorization": f"Basic {settings.inworld_api_key}",
         "Content-Type": "application/json",
-        "Accept": "audio/mpeg",
     }
+
+
+def _configured() -> bool:
+    if not settings.inworld_api_key or not settings.inworld_voice_id:
+        print("[TTS] Inworld API key or voice ID not set — skipping TTS.")
+        return False
+    return True
+
+
+async def synthesize_stream(text: str) -> AsyncGenerator[bytes, None]:
+    """Yield MP3 bytes chunks as they stream from Inworld. Preferred for interactive use."""
+    if not _configured():
+        return
 
     payload = {
         "text": text,
-        "model_id": "eleven_monolingual_v1",
-        "voice_settings": {
-            "stability": 0.5,
-            "similarity_boost": 0.75,
+        "voice_id": settings.inworld_voice_id,
+        "model_id": _MODEL_ID,
+        "audio_config": {
+            "audio_encoding": "MP3",
+            "speaking_rate": 1,
         },
+        "temperature": 1,
+    }
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        async with client.stream("POST", _TTS_STREAM_URL, headers=_headers(), json=payload) as response:
+            response.raise_for_status()
+            async for line in response.aiter_lines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    data = json.loads(line)
+                    audio_b64 = data.get("result", {}).get("audioContent", "")
+                    if audio_b64:
+                        yield base64.b64decode(audio_b64)
+                except (json.JSONDecodeError, KeyError):
+                    continue
+
+
+async def synthesize(text: str) -> bytes:
+    """Non-streaming fallback — returns full MP3 bytes in one response."""
+    if not _configured():
+        return b""
+
+    payload = {
+        "text": text,
+        "voiceId": settings.inworld_voice_id,
+        "modelId": _MODEL_ID,
+        "audioConfig": {
+            "speakingRate": 1,
+        },
+        "temperature": 1,
     }
 
     async with httpx.AsyncClient(timeout=20.0) as client:
-        response = await client.post(url, headers=headers, json=payload)
+        response = await client.post(_TTS_URL, headers=_headers(), json=payload)
         response.raise_for_status()
-        return response.content
+
+    audio_b64 = response.json().get("audioContent", "")
+    return base64.b64decode(audio_b64) if audio_b64 else b""
 
 
 def build_tts_text(result) -> str:

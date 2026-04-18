@@ -34,3 +34,10 @@ class Events:
     # Escalation events
     ESCALATION_TRIGGERED = "escalation.triggered"
     SUPERVISOR_NOTIFIED = "supervisor.notified"
+
+    # Coordination events (Feature 5)
+    ROLE_ASSIGNED = "role.assigned"
+    INCIDENT_ALERT = "incident.alert"
+
+    # Report events (Feature 6)
+    REPORT_GENERATED = "report.generated"

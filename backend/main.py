@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from app.config import settings
-from app.routers import audio, triage, tasks, cctv, coordination, intelligence, escalation, pursuit, missing_person
+from app.routers import audio, triage, tasks, cctv, coordination, intelligence, escalation, pursuit, missing_person, report
 from app.services.cctv import cctv_manager, CCTVHandler
 
 app = FastAPI(
@@ -29,6 +29,15 @@ app.include_router(intelligence.router)
 app.include_router(escalation.router)
 app.include_router(pursuit.router)
 app.include_router(missing_person.router)
+app.include_router(report.router)
+
+
+@app.on_event("startup")
+async def preload_stt_model():
+    from app.services.stt import get_model
+    import asyncio
+    await asyncio.get_event_loop().run_in_executor(None, get_model)
+    print("[STT] Model pre-loaded and ready.")
 
 
 @app.on_event("startup")

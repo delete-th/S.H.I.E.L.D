@@ -3,9 +3,9 @@ from typing import List
 
 
 class Settings(BaseSettings):
-    # ElevenLabs TTS
-    elevenlabs_api_key: str = ""
-    elevenlabs_voice_id: str = "21m00Tcm4TlvDq8ikWAM"
+    # Inworld TTS + Voice Cloning
+    inworld_api_key: str = ""
+    inworld_voice_id: str = ""   # set after running scripts/clone_jarvis_voice.py
 
     # Supabase
     supabase_url: str = "http://localhost:54321"
@@ -22,7 +22,11 @@ class Settings(BaseSettings):
     onemap_api_key: str = ""
     onemap_base_url: str = "https://www.onemap.gov.sg"
 
-    # Ollama (free open-source LLM)
+    # Groq (cloud LLM — free tier, fast, no local GPU needed)
+    groq_api_key: str = ""
+    groq_model: str = "llama-3.3-70b-versatile"
+
+    # Ollama (local fallback — only used if groq_api_key is not set)
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "mistral"
 

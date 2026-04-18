@@ -32,7 +32,7 @@ async def get_cached(transcript: str) -> TriageResult | None:
         r = get_redis()
         raw = await r.get(_cache_key(transcript))
         if raw:
-            return TriageResult(**json.loads(raw))
+            return TriageResult.model_validate(json.loads(raw))
     except Exception as e:
         print(f"[Cache] Redis GET error: {e}")
     return None

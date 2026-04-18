@@ -20,16 +20,19 @@ def get_model() -> WhisperModel:
     return _model
 
 
-async def transcribe(audio_bytes: bytes) -> str:
+def _run_transcribe(audio_bytes: bytes) -> str:
     model = get_model()
-
     with tempfile.NamedTemporaryFile(suffix=".webm", delete=False) as tmp:
         tmp.write(audio_bytes)
         tmp_path = tmp.name
-
     try:
         segments, _ = model.transcribe(tmp_path, language="en")
-        transcript = " ".join(segment.text for segment in segments).strip()
-        return transcript
+        return " ".join(segment.text for segment in segments).strip()
     finally:
         os.unlink(tmp_path)
+
+
+async def transcribe(audio_bytes: bytes) -> str:
+    import asyncio
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, _run_transcribe, audio_bytes)

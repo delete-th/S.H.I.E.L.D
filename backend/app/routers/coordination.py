@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from app.websocket.manager import manager
 from app.websocket.events import Events
@@ -45,6 +46,24 @@ async def coordination_websocket(websocket: WebSocket, officer_id: str):
                     origin=suspect_loc,
                     radius_km=1.0
                 )
+
+            # Assign chaser/interceptor role to another officer
+            elif event == Events.ROLE_ASSIGNED:
+                target = data.get("target_officer_id")
+                role = data.get("role")
+                if role not in ("chaser", "interceptor") or not target:
+                    continue
+                payload = {
+                    "event": Events.ROLE_ASSIGNED,
+                    "target_officer_id": target,
+                    "assigned_by": officer_id,
+                    "role": role,
+                    "suspect_description": data.get("suspect_description", ""),
+                    "location": data.get("location", {}),
+                    "timestamp": datetime.utcnow().isoformat(),
+                }
+                await manager.send_to_officer(target, payload)
+                await manager.broadcast(payload)
 
     except WebSocketDisconnect:
         manager.disconnect(officer_id)
