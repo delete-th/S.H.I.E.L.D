@@ -53,10 +53,16 @@ async def setup_cameras():
       3. Fallback: mock_cctv.mp4 as CAM-001
     """
     registered = 0
+    repo_root = Path(BASE_DIR).parent
+    backend_data_dir = Path(BASE_DIR) / "app" / "data"
+    shared_data_dir = repo_root / "app" / "data"
 
     # ── 1. Kaggle-registered cameras ──────────────────────────────────────
-    cam_reg_path = os.path.join(BASE_DIR, "app", "data", "registered_cameras.json")
-    if os.path.exists(cam_reg_path):
+    cam_reg_path = backend_data_dir / "registered_cameras.json"
+    if not cam_reg_path.exists():
+        cam_reg_path = shared_data_dir / "registered_cameras.json"
+
+    if cam_reg_path.exists():
         try:
             registry = json.loads(Path(cam_reg_path).read_text())
             for cam_id, cam in registry.items():
@@ -76,8 +82,10 @@ async def setup_cameras():
             print(f"[CCTV] Could not load registered cameras: {e}")
 
     # ── 2. Manual video files in cctv_feeds/ ─────────────────────────────
-    feeds_dir = os.path.join(BASE_DIR, "app", "data", "cctv_feeds")
-    if os.path.isdir(feeds_dir):
+    feeds_dir = backend_data_dir / "cctv_feeds"
+    if not feeds_dir.is_dir():
+        feeds_dir = shared_data_dir / "cctv_feeds"
+    if feeds_dir.is_dir():
         exts = (".mp4", ".avi", ".mov", ".mkv")
         videos = sorted([
             f for f in Path(feeds_dir).rglob("*")
