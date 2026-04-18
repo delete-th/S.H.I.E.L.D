@@ -3,19 +3,59 @@ import { Camera, ScanFace, MapPin, AlertTriangle } from "lucide-react";
 
 export default function Intelligence({ data }) {
 
-  // if no real data yet, show static placeholder
   if (!data) {
     return (
       <Card>
-        <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="flex items-center justify-between gap-3 mb-3">
           <div>
             <h2 className="text-lg font-semibold">Real-Time Intelligence</h2>
-            <p className="text-sm text-white/60">Waiting for incident report...</p>
+            <p className="text-sm text-white/40 italic">— awaiting incident —</p>
+          </div>
+          <div className="flex items-center gap-2 rounded-full px-3 py-1 text-xs border bg-white/5 text-white/20 border-white/10">
+            <AlertTriangle className="h-4 w-4" /> NO DATA
           </div>
         </div>
-        <p className="text-sm text-white/40 text-center py-8">
-          Start recording an incident to trigger intelligence scan.
-        </p>
+
+        <div className="rounded-xl bg-white/5 border border-white/10 p-3 mb-3 text-sm text-white/20 italic">
+          Location summary will appear here once an incident is reported.
+        </div>
+
+        <div className="mb-3">
+          <p className="text-xs text-white/20 mb-2 tracking-widest">PAST CASES</p>
+          {[{ type: "Theft", sev: "medium" }, { type: "Suspicious Person", sev: "low" }].map((c, i) => (
+            <div key={i} className="rounded-xl border border-white/5 bg-white/3 p-3 mb-2 text-sm opacity-30">
+              <div className="flex justify-between">
+                <span className="font-medium text-white/60">{c.type}</span>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-200/60">{c.sev}</span>
+              </div>
+              <p className="text-white/30 text-xs mt-1">under_investigation</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mb-3">
+          <p className="text-xs text-white/20 mb-2 tracking-widest">SUSPECT MATCHES</p>
+          <div className="rounded-xl border border-white/5 bg-white/3 p-3 mb-2 opacity-30">
+            <div className="flex justify-between">
+              <span className="font-medium text-white/60">— No matches —</span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-200/60">low</span>
+            </div>
+            <p className="text-white/30 text-xs mt-1">medium build · dark attire</p>
+          </div>
+        </div>
+
+        <div>
+          <p className="text-xs text-white/20 mb-2 tracking-widest">NEARBY CAMERAS</p>
+          {["CAM-001", "CAM-002"].map(cam => (
+            <div key={cam} className="flex items-center justify-between rounded-xl border border-white/5 bg-white/3 p-3 mb-2 text-sm opacity-30">
+              <div className="flex items-center gap-2">
+                <Camera className="h-4 w-4 text-white/30" />
+                <span className="text-white/40">{cam} — Awaiting location</span>
+              </div>
+              <span className="text-xs text-white/20">● offline</span>
+            </div>
+          ))}
+        </div>
       </Card>
     );
   }
