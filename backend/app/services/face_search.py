@@ -1,19 +1,16 @@
 """
 Missing Person Face Search Service
 
-Supports three modes (auto-detected):
-  1. Real-time upload  — officer uploads a photo; compared against watchlist DB
-  2. Watchlist DB      — faces in app/data/faces/ (populated from uploads or LFW subset)
-  3. CCTV scan         — scans live/recorded video frames for a target face
-
-No mock data dependency. Falls back gracefully when DeepFace is unavailable.
+Demo flow:
+1. Officer uploads photo of missing person
+2. DeepFace extracts face embedding from photo
+3. System compares against known faces database (app/data/faces/)
+4. If match found in database → simulate CCTV detection
+5. Notify officer via WebSocket with camera location
 """
 import os
 import asyncio
 import tempfile
-import json
-import uuid
-import shutil
 import numpy as np
 from datetime import datetime
 from typing import Optional, Callable
@@ -25,76 +22,18 @@ except ImportError:
     DEEPFACE_AVAILABLE = False
     print("[FaceSearch] deepface not installed — face search disabled.")
 
-BASE_DIR   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FACES_DIR  = os.path.join(BASE_DIR, "data", "faces")
-META_FILE  = os.path.join(BASE_DIR, "data", "faces_meta.json")  # name→info mapping
+# --- Configuration ---
+FACES_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "data", "faces"
+)
 MODEL_NAME = "VGG-Face"
-DETECTOR   = "opencv"
-THRESHOLD  = 0.4    # cosine distance — lower = stricter match
+DETECTOR = "opencv"
+MATCH_THRESHOLD = 0.4
 
-os.makedirs(FACES_DIR, exist_ok=True)
-
-# ── Metadata helpers ──────────────────────────────────────────────────────────
-
-def load_meta() -> dict:
-    if os.path.exists(META_FILE):
-        try:
-            with open(META_FILE) as f:
-                return json.load(f)
-        except Exception:
-            pass
-    return {}
-
-def save_meta(meta: dict):
-    with open(META_FILE, "w") as f:
-        json.dump(meta, f, indent=2)
-
-def register_face(image_bytes: bytes, name: str, notes: str = "") -> dict:
-    """
-    Save an uploaded face image to the watchlist.
-    Returns { id, name, path, registered_at }
-    """
-    meta = load_meta()
-    face_id = str(uuid.uuid4())[:8]
-    safe_name = name.replace(" ", "_")
-    filename = f"{safe_name}_{face_id}.jpg"
-    path = os.path.join(FACES_DIR, filename)
-
-    with open(path, "wb") as f:
-        f.write(image_bytes)
-
-    record = {
-        "id": face_id,
-        "name": name,
-        "notes": notes,
-        "path": path,
-        "filename": filename,
-        "registered_at": datetime.now().isoformat(),
-    }
-    meta[face_id] = record
-    save_meta(meta)
-    print(f"[FaceSearch] Registered face: {name} → {filename}")
-    return record
-
-def list_watchlist() -> list:
-    meta = load_meta()
-    return list(meta.values())
-
-def remove_from_watchlist(face_id: str) -> bool:
-    meta = load_meta()
-    if face_id not in meta:
-        return False
-    rec = meta.pop(face_id)
-    try:
-        os.remove(rec["path"])
-    except FileNotFoundError:
-        pass
-    save_meta(meta)
-    return True
-
-# ── Embedding helpers ──────────────────────────────────────────────────────────
 
 def extract_embedding(image_path: str) -> Optional[np.ndarray]:
+    """Extract face embedding from an image file path."""
     if not DEEPFACE_AVAILABLE:
         return None
     try:
@@ -102,14 +41,17 @@ def extract_embedding(image_path: str) -> Optional[np.ndarray]:
             img_path=image_path,
             model_name=MODEL_NAME,
             detector_backend=DETECTOR,
-            enforce_detection=True,
+            enforce_detection=True
         )
-        return np.array(result[0]["embedding"]) if result else None
+        if result:
+            return np.array(result[0]["embedding"])
     except Exception as e:
         print(f"[FaceSearch] Embedding error: {e}")
-        return None
+    return None
+
 
 def extract_embedding_from_bytes(image_bytes: bytes) -> Optional[np.ndarray]:
+    """Extract face embedding from raw image bytes."""
     with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
         tmp.write(image_bytes)
         tmp_path = tmp.name
@@ -118,34 +60,45 @@ def extract_embedding_from_bytes(image_bytes: bytes) -> Optional[np.ndarray]:
     finally:
         os.unlink(tmp_path)
 
-def cosine_distance(a: np.ndarray, b: np.ndarray) -> float:
-    n = np.linalg.norm(a) * np.linalg.norm(b)
-    return round(float(1 - np.dot(a, b) / n), 4) if n else 1.0
 
-# ── Watchlist scanning ────────────────────────────────────────────────────────
+def compare_faces(emb1: np.ndarray, emb2: np.ndarray) -> float:
+    """
+    Compare two embeddings using cosine distance.
+    Returns 0.0 (identical) to 1.0 (completely different).
+    """
+    dot = np.dot(emb1, emb2)
+    norm = np.linalg.norm(emb1) * np.linalg.norm(emb2)
+    if norm == 0:
+        return 1.0
+    return round(1 - (dot / norm), 4)
+
+
+def is_match(distance: float) -> bool:
+    return distance <= MATCH_THRESHOLD
+
 
 def load_known_faces() -> dict:
     """
-    Load all watchlist faces and build { face_id: { name, embedding, ... } }.
-    Skips files with no detectable face (logs a warning).
+    Load all face images from app/data/faces/ and extract embeddings.
+    Returns { name: embedding } — acts as missing persons watchlist.
     """
-    if not DEEPFACE_AVAILABLE:
-        return {}
     known = {}
-    meta  = load_meta()
-    files = [f for f in os.listdir(FACES_DIR) if f.lower().endswith((".jpg", ".jpeg", ".png"))]
-    print(f"[FaceSearch] Loading {len(files)} watchlist faces...")
+    if not os.path.exists(FACES_DIR):
+        print(f"[FaceSearch] Faces directory not found: {FACES_DIR}")
+        return known
 
-    for filename in files:
+    image_files = [
+        f for f in os.listdir(FACES_DIR)
+        if f.lower().endswith((".jpg", ".jpeg", ".png"))
+    ]
+
+    print(f"[FaceSearch] Loading {len(image_files)} known faces...")
+    for filename in image_files:
         path = os.path.join(FACES_DIR, filename)
-        # Find meta record by filename, or use filename as name
-        rec  = next((r for r in meta.values() if r.get("filename") == filename), None)
-        name = rec["name"] if rec else os.path.splitext(filename)[0].replace("_", " ")
-        fid  = rec["id"]   if rec else filename
-
-        emb  = extract_embedding(path)
-        if emb is not None:
-            known[fid] = {"name": name, "embedding": emb, "path": path}
+        name = os.path.splitext(filename)[0].replace("_", " ")
+        embedding = extract_embedding(path)
+        if embedding is not None:
+            known[name] = embedding
             print(f"  ✓ {name}")
         else:
             print(f"  ✗ No face detected: {filename}")
@@ -153,57 +106,33 @@ def load_known_faces() -> dict:
     print(f"[FaceSearch] {len(known)} faces ready.")
     return known
 
-def search_database(target_embedding: np.ndarray, known_faces: dict) -> Optional[dict]:
-    """Compare target against all watchlist faces. Return best match or None."""
-    best_dist = THRESHOLD
-    best      = None
-    for fid, rec in known_faces.items():
-        dist = cosine_distance(target_embedding, rec["embedding"])
-        if dist < best_dist:
-            best_dist = dist
-            best = {
-                "matched":    True,
-                "face_id":    fid,
-                "name":       rec["name"],
-                "confidence": round((1 - dist) * 100, 1),
-                "distance":   dist,
-                "timestamp":  datetime.now().isoformat(),
-                "source":     "watchlist",
+
+def search_database_for_person(
+    target_embedding: np.ndarray,
+    known_faces: dict
+) -> Optional[dict]:
+    """
+    Compare target embedding against all known faces in database.
+    Returns best match info or None if no match found.
+    """
+    best_match = None
+    best_distance = 1.0
+
+    for name, embedding in known_faces.items():
+        distance = compare_faces(target_embedding, embedding)
+        print(f"[FaceSearch] Comparing with {name}: distance={distance}")
+        if is_match(distance) and distance < best_distance:
+            best_distance = distance
+            best_match = {
+                "matched": True,
+                "name": name,
+                "confidence": round((1 - distance) * 100, 1),
+                "distance": distance,
+                "timestamp": datetime.now().isoformat()
             }
-    return best
 
-# ── CCTV frame scanning ───────────────────────────────────────────────────────
+    return best_match
 
-def _search_frame(frame_bytes: bytes, target_embedding: np.ndarray) -> Optional[dict]:
-    with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
-        tmp.write(frame_bytes)
-        path = tmp.name
-    try:
-        if not DEEPFACE_AVAILABLE:
-            return None
-        faces = DeepFace.represent(
-            img_path=path, model_name=MODEL_NAME,
-            detector_backend=DETECTOR, enforce_detection=False,
-        )
-        if not faces:
-            return None
-        for fd in faces:
-            emb  = np.array(fd["embedding"])
-            dist = cosine_distance(target_embedding, emb)
-            if dist <= THRESHOLD:
-                return {
-                    "matched":    True,
-                    "confidence": round((1 - dist) * 100, 1),
-                    "distance":   dist,
-                    "timestamp":  datetime.now().isoformat(),
-                    "face_region": fd.get("facial_area", {}),
-                    "source":     "cctv",
-                }
-    except Exception as e:
-        print(f"[FaceSearch] Frame error: {e}")
-    finally:
-        os.unlink(path)
-    return None
 
 async def scan_cctv_for_person(
     target_embedding: np.ndarray,
@@ -211,35 +140,97 @@ async def scan_cctv_for_person(
     camera_id: str,
     cctv_handler,
     on_match: Callable,
-    max_frames: int = 60,
+    max_frames: int = 50
 ) -> None:
     """
-    1. Check watchlist DB first (fast).
-    2. Scan CCTV frames if no DB match.
+    Two-step scan:
+    1. Check uploaded photo against known faces database first (fast)
+    2. If no match in database, scan actual CCTV frames (slower)
     """
-    loop = asyncio.get_event_loop()
+    print(f"[FaceSearch] Step 1 — checking database for {camera_id}...")
 
-    print(f"[FaceSearch] Checking watchlist for {camera_id}...")
-    db_result = await loop.run_in_executor(None, search_database, target_embedding, known_faces)
+    # Step 1 — check against known faces database
+    loop = asyncio.get_event_loop()
+    db_result = await loop.run_in_executor(
+        None,
+        search_database_for_person,
+        target_embedding,
+        known_faces
+    )
+
     if db_result:
-        print(f"[FaceSearch] Watchlist match: {db_result['name']} ({db_result['confidence']}%)")
-        db_result.update({"camera_id": camera_id, "frame_number": 0, "frame_base64": ""})
+        print(f"[FaceSearch] Database match: {db_result['name']} ({db_result['confidence']}%)")
+        db_result["camera_id"] = camera_id
+        db_result["frame_number"] = 0
+        db_result["frame_base64"] = ""
+        db_result["source"] = "database"
         await on_match(db_result)
         return
 
-    print(f"[FaceSearch] Scanning CCTV frames on {camera_id}...")
-    count = 0
+    # Step 2 — scan actual CCTV frames if no database match
+    print(f"[FaceSearch] Step 2 — scanning CCTV frames on {camera_id}...")
+    frames_checked = 0
+
     async for frame in cctv_handler.stream_frames():
-        if count >= max_frames:
+        if frames_checked >= max_frames:
             break
-        result = await loop.run_in_executor(None, _search_frame, frame["jpeg_bytes"], target_embedding)
-        count += 1
+
+        result = await loop.run_in_executor(
+            None,
+            _search_frame,
+            frame["jpeg_bytes"],
+            target_embedding
+        )
+
+        frames_checked += 1
+        print(f"[FaceSearch] Frame {frames_checked}/{max_frames} checked.")
+
         if result:
-            result.update({
-                "camera_id":    camera_id,
-                "frame_number": frame.get("frame_number", count),
-                "frame_base64": frame.get("base64", ""),
-            })
+            result["camera_id"] = camera_id
+            result["frame_number"] = frame["frame_number"]
+            result["frame_base64"] = frame["base64"]
+            result["source"] = "cctv"
             await on_match(result)
             break
-    print(f"[FaceSearch] Scan done. {count} frames checked.")
+
+    print(f"[FaceSearch] Scan complete. {frames_checked} frames checked.")
+
+
+def _search_frame(
+    frame_bytes: bytes,
+    target_embedding: np.ndarray
+) -> Optional[dict]:
+    """Search a single CCTV frame for a face match."""
+    with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
+        tmp.write(frame_bytes)
+        frame_path = tmp.name
+
+    try:
+        if not DEEPFACE_AVAILABLE:
+            return None
+        faces = DeepFace.represent(
+            img_path=frame_path,
+            model_name=MODEL_NAME,
+            detector_backend=DETECTOR,
+            enforce_detection=False
+        )
+        if not faces:
+            return None
+
+        for face_data in faces:
+            frame_embedding = np.array(face_data["embedding"])
+            distance = compare_faces(target_embedding, frame_embedding)
+            if is_match(distance):
+                return {
+                    "matched": True,
+                    "confidence": round((1 - distance) * 100, 1),
+                    "distance": distance,
+                    "timestamp": datetime.now().isoformat(),
+                    "face_region": face_data.get("facial_area", {})
+                }
+    except Exception as e:
+        print(f"[FaceSearch] Frame search error: {e}")
+    finally:
+        os.unlink(frame_path)
+
+    return None

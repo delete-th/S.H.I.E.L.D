@@ -43,13 +43,14 @@ async def stream_cctv(websocket: WebSocket, camera_id: str):
         await websocket.close()
         return
 
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    video_path = os.path.join(base_dir, "data", "mock_cctv.mp4")
+
     stream_handler = CCTVHandler(
         source=handler.source,
         camera_id=camera_id,
-        file_path=handler.file_path,
-        rtsp_url=handler.rtsp_url,
-        frame_interval=handler.frame_interval,
-        max_frames=handler.max_frames,
+        file_path=video_path,
+        frame_interval=0.5
     )
 
     try:
