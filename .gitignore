@@ -208,4 +208,10 @@ __marimo__/
 
 # local features file
 features.txt
+
+# Ignore local CCTV feed datasets and face images
+app/data/cctv_feeds/
+app/data/faces/
+backend/app/data/faces/
+
 frontend/node_modules/
