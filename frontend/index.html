@@ -5,6 +5,18 @@
     <link rel="icon" type="image/svg+xml" href="/shield.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>S.H.I.E.L.D — Certis AI Dispatch</title>
+
+    <!-- Leaflet — loaded globally so PursuitMap can use window.L -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+      /* Prevent Leaflet tile seams */
+      .leaflet-tile { image-rendering: auto; }
+      /* Dark map attribution */
+      .leaflet-control-attribution { background: rgba(22,33,62,0.8) !important; color: #64748b !important; font-size: 9px !important; }
+      .leaflet-control-attribution a { color: #475569 !important; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
