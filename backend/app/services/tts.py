@@ -46,7 +46,7 @@ async def synthesize_stream(text: str) -> AsyncGenerator[bytes, None]:
             "audio_encoding": "MP3",
             "speaking_rate": 1,
         },
-        "temperature": 1,
+        "temperature": 0.4,
     }
 
     async with httpx.AsyncClient(timeout=30.0) as client:
@@ -77,7 +77,7 @@ async def synthesize(text: str) -> bytes:
         "audioConfig": {
             "speakingRate": 1,
         },
-        "temperature": 1,
+        "temperature": 0.4,
     }
 
     async with httpx.AsyncClient(timeout=20.0) as client:
@@ -89,7 +89,7 @@ async def synthesize(text: str) -> bytes:
 
 
 def build_tts_text(result) -> str:
-    """Format triage result into a concise spoken response."""
-    priority_word = {"high": "HIGH PRIORITY", "medium": "MEDIUM PRIORITY", "low": "LOW PRIORITY"}
+    """Format triage result into a short spoken response — action only, summary stays in UI."""
+    priority_word = {"high": "High priority.", "medium": "Medium priority.", "low": "Low priority."}
     p = priority_word.get(result.priority, "")
-    return f"{p}. {result.action}. {result.summary}"
+    return f"{p} {result.action}"

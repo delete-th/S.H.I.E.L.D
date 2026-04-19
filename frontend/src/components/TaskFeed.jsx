@@ -77,7 +77,30 @@ export default function TaskFeed({ newTask }) {
           <p className="text-xs text-gray-500 text-center py-8">Loading tasks...</p>
         )}
         {!loading && tasks.length === 0 && (
-          <p className="text-xs text-gray-500 text-center py-8">No active tasks. Start transmitting.</p>
+          <div className="space-y-2 opacity-30 pointer-events-none select-none">
+            {[
+              { priority: "high", category: "incident", action: "Respond to disturbance at Tampines Mall B2", summary: "Reported altercation near food court entrance. Two parties involved." },
+              { priority: "medium", category: "patrol", action: "Conduct sweep of Sector 4 perimeter", summary: "Routine check following earlier suspicious activity report." },
+              { priority: "low", category: "admin", action: "Submit end-of-shift incident log", summary: "GD entry required within 30 minutes of shift end." },
+            ].map((t, i) => {
+              const cfg = PRIORITY_CONFIG[t.priority];
+              return (
+                <div key={i} className={`border-l-4 rounded-lg p-4 ${cfg.color}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded ${cfg.badge}`}>{cfg.label}</span>
+                        <span className="text-xs text-gray-400">{CATEGORY_ICONS[t.category]} {t.category.toUpperCase()}</span>
+                        <span className="text-xs text-gray-500 ml-auto">--:--</span>
+                      </div>
+                      <p className="text-sm font-semibold text-white">{t.action}</p>
+                      <p className="text-xs text-gray-400 mt-1">{t.summary}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
         {tasks.map((task) => (
           <TaskCard key={task.id} task={task} onDelete={handleDelete} />

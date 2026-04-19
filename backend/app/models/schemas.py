@@ -9,6 +9,12 @@ class TriageResult(BaseModel):
     action: str = Field(description="Specific action the officer should take")
     category: Literal["patrol", "incident", "admin"]
     summary: str = Field(description="Brief summary of the officer's report")
+    location: Optional[str] = None
+    incident_type: Optional[str] = None
+    persons_involved: Optional[str] = None
+    corrected_transcript: Optional[str] = None
+    is_new_case: bool = False
+    follow_up_questions: dict = {}
     escalation_required: bool = False
     escalation_reason: Optional[str] = None
     severity_flags: List[str] = []
