@@ -15,7 +15,11 @@ type SpeechRecognition = any;
 type SpeechRecognitionEvent = any;
 type SpeechRecognitionErrorEvent = any;
 
-const WAKE_WORDS = ["jarvis", "hey jarvis", "dispatch"];
+// Primary phrases + common STT mishearings of "Jarvis"
+const WAKE_WORDS = [
+  "jarvis", "hey jarvis", "dispatch",
+  "jarvas", "jarves", "harvest", "travis", "garvis", "davis",
+];
 
 interface UseWakeWordOptions {
   enabled: boolean;
@@ -31,6 +35,8 @@ export default function useWakeWord({ enabled, onWakeWordDetected }: UseWakeWord
   // Keep refs current without triggering re-renders
   enabledRef.current  = enabled;
   callbackRef.current = onWakeWordDetected;
+
+  const triggeredRef = useRef(false);
 
   // startListening has NO deps — it only reads refs, never closes over props
   const startListening = useCallback(() => {
@@ -51,46 +57,51 @@ export default function useWakeWord({ enabled, onWakeWordDetected }: UseWakeWord
       recognitionRef.current = null;
     }
 
+    triggeredRef.current = false;
+
     const recognition = new SR();
-    recognition.continuous    = false;  // one utterance → restart in onend
-    recognition.interimResults = false;
-    recognition.lang           = "en-US";
-    recognitionRef.current     = recognition;
+    recognition.continuous      = false; // one utterance → restart in onend
+    recognition.interimResults  = true;  // fire while user is still speaking
+    recognition.maxAlternatives = 3;     // check top-3 STT guesses
+    recognition.lang            = "en-US";
+    recognitionRef.current      = recognition;
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const transcript = event.results[0]?.[0]?.transcript?.toLowerCase().trim() ?? "";
-      console.log("[WakeWord] heard:", transcript);
-      const matched = WAKE_WORDS.some((w) => transcript.includes(w));
-      if (matched && enabledRef.current) {
-        console.log("[WakeWord] MATCH — triggering");
-        callbackRef.current();
+      if (triggeredRef.current) return; // already fired for this utterance
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        for (let j = 0; j < result.length; j++) {
+          const text = result[j].transcript?.toLowerCase().trim() ?? "";
+          if (WAKE_WORDS.some((w) => text.includes(w))) {
+            console.log("[WakeWord] MATCH:", text);
+            triggeredRef.current = true;
+            try { recognition.abort(); } catch {}
+            callbackRef.current();
+            return;
+          }
+        }
       }
     };
 
     recognition.onend = () => {
-      // Always restart unless explicitly disabled
       if (enabledRef.current) {
-        // Small delay prevents rapid-fire restarts on some browsers
-        restartTimerRef.current = setTimeout(startListening, 150);
+        restartTimerRef.current = setTimeout(startListening, 100);
       }
     };
 
     recognition.onerror = (e: SpeechRecognitionErrorEvent) => {
-      // "no-speech" and "aborted" are normal — silence them
       if (e.error !== "no-speech" && e.error !== "aborted") {
         console.warn("[WakeWord] error:", e.error);
       }
       if (enabledRef.current) {
-        restartTimerRef.current = setTimeout(startListening, 300);
+        restartTimerRef.current = setTimeout(startListening, 200);
       }
     };
 
     try {
       recognition.start();
-      console.log("[WakeWord] listening...");
     } catch (err) {
-      // InvalidStateError = already started, safe to ignore
-      console.warn("[WakeWord] start error (likely already running):", err);
+      console.warn("[WakeWord] start error:", err);
     }
   }, []); // ← empty deps: function never recreated
 

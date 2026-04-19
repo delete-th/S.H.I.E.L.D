@@ -8,10 +8,17 @@ Flow:
   4. Send follow_up prompt if LLM detected missing fields
 """
 import base64
+import re
 import uuid
 from datetime import datetime
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
 from typing import Optional
+
+_UUID_RE = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.IGNORECASE)
+
+def _as_uuid(value: Optional[str]) -> Optional[str]:
+    """Return value only if it's a valid UUID, else None."""
+    return value if (value and _UUID_RE.match(value)) else None
 from app.services import stt, llm, tts, cache
 from app.services.db import get_supabase
 from app.websocket.manager import manager
@@ -27,11 +34,18 @@ FOLLOW_UP_PROMPTS = {
     "incident_type": "What type of incident is this?",
 }
 
+_RESET_PHRASES = {"new case", "new incident", "next report", "new report", "fresh case", "start over"}
+
 
 def _build_follow_up_text(missing_fields: list) -> str:
     return " ".join(
         FOLLOW_UP_PROMPTS[f] for f in missing_fields if f in FOLLOW_UP_PROMPTS
     )
+
+
+def _is_reset_phrase(transcript: str) -> bool:
+    t = transcript.lower().strip()
+    return any(phrase in t for phrase in _RESET_PHRASES)
 
 
 @router.websocket("/ws/audio")
@@ -41,6 +55,8 @@ async def audio_websocket(
 ):
     await websocket.accept()
     print(f"[WS] Client connected. officer_id={officer_id}")
+
+    conversation_history: list[dict] = []
 
     try:
         while True:
@@ -61,24 +77,36 @@ async def audio_websocket(
 
             await websocket.send_json({"type": "transcript", "text": transcript})
 
-            # Step 2: Cache check + LLM triage
+            # Reset conversation if officer signals a new case
+            if _is_reset_phrase(transcript):
+                conversation_history.clear()
+                await websocket.send_json({"type": "conversation_reset"})
+
+            # Step 2: Cache check + LLM triage (with conversation history)
             result = await cache.get_cached(transcript)
             if result is None:
                 try:
-                    result = await llm.triage_transcript(transcript)
+                    result = await llm.triage_transcript(transcript, history=conversation_history)
                     await cache.set_cached(transcript, result)
                 except Exception as e:
                     await websocket.send_json({"type": "error", "message": f"LLM failed: {e}"})
                     continue
 
-            await websocket.send_json({"type": "triage", "result": result.model_dump()})
+            # Append to conversation history (cap at 10 messages / 5 turns)
+            conversation_history.append({"role": "user", "content": f"Officer report: {transcript}"})
+            conversation_history.append({"role": "assistant", "content": result.model_dump_json()})
+            if len(conversation_history) > 10:
+                conversation_history = conversation_history[-10:]
+
+            tts_text = tts.build_tts_text(result)
+            await websocket.send_json({"type": "triage", "result": result.model_dump(), "tts_text": tts_text})
 
             # Step 3: Auto-save task to Supabase
             task_id = str(uuid.uuid4())
             try:
                 task = Task(
                     t_id=task_id,
-                    t_officer_id=officer_id,
+                    t_officer_id=_as_uuid(officer_id),
                     t_priority=result.priority,
                     t_category=result.category,
                     t_action=result.action,
@@ -116,26 +144,17 @@ async def audio_websocket(
                 except Exception as e:
                     print(f"[WS] Broadcast failed (non-fatal): {e}")
 
-            # Step 5: TTS — streaming JARVIS voice response
-            tts_text = tts.build_tts_text(result)
+            # Step 5: TTS — single-request for clean, artifact-free audio
             try:
-                sent = 0
-                async for chunk in tts.synthesize_stream(tts_text):
+                audio_data = await tts.synthesize(tts_text)
+                if audio_data:
                     await websocket.send_json({
                         "type": "audio",
-                        "data": base64.b64encode(chunk).decode(),
+                        "data": base64.b64encode(audio_data).decode(),
                     })
-                    sent += 1
-                if sent == 0:
-                    # Fallback to non-streaming if stream yields nothing
-                    audio_data = await tts.synthesize(tts_text)
-                    if audio_data:
-                        await websocket.send_json({
-                            "type": "audio",
-                            "data": base64.b64encode(audio_data).decode(),
-                        })
             except Exception as e:
                 print(f"[TTS] Error: {e}")
+            await websocket.send_json({"type": "audio_end"})
 
             # Step 6: Follow-up prompt for missing fields
             if result.missing_fields:
@@ -146,22 +165,15 @@ async def audio_websocket(
                     "prompt": follow_up_text,
                 })
                 try:
-                    sent = 0
-                    async for chunk in tts.synthesize_stream(follow_up_text):
+                    fu_audio = await tts.synthesize(follow_up_text)
+                    if fu_audio:
                         await websocket.send_json({
                             "type": "audio",
-                            "data": base64.b64encode(chunk).decode(),
+                            "data": base64.b64encode(fu_audio).decode(),
                         })
-                        sent += 1
-                    if sent == 0:
-                        fu_audio = await tts.synthesize(follow_up_text)
-                        if fu_audio:
-                            await websocket.send_json({
-                                "type": "audio",
-                                "data": base64.b64encode(fu_audio).decode(),
-                            })
                 except Exception as e:
                     print(f"[TTS] Follow-up TTS error: {e}")
+                await websocket.send_json({"type": "audio_end"})
 
     except WebSocketDisconnect:
         print(f"[WS] Client disconnected. officer_id={officer_id}")

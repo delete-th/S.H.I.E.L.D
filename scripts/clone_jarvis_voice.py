@@ -42,7 +42,7 @@ def find_audio(name: str) -> Path | None:
             return p
     return None
 
-AUDIO_NAMES = ["JARVIS (1).mp3", "JARVIS II.mp3", "Jarvis audio 4.mp3"]
+AUDIO_NAMES = ["JARVIS_CLONE.mp3"]
 CLONE_URL   = "https://api.inworld.ai/voices/v1/voices:clone"
 
 # ── Auth helpers ──────────────────────────────────────────────────────────────

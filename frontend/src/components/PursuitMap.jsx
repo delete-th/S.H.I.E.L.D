@@ -199,8 +199,9 @@ export default function PursuitMap({
     if (!m) return;
     Object.entries(otherOfficers).forEach(([id, loc]) => {
       if (otherMks.current[id]) m.removeLayer(otherMks.current[id]);
+      const label = id.replace(/^([A-Z]+)-0*(\d+)$/, "$1$2"); // C-002 → C2
       otherMks.current[id] = L.marker([loc.lat, loc.lng], {
-        icon: makeIcon("#10b981", id.replace(/^C-0*/, ""), 26), zIndexOffset: 800,
+        icon: makeIcon("#10b981", label, 28), zIndexOffset: 800,
       }).addTo(m).bindPopup(`<b>Officer ${id}</b>`);
     });
     Object.keys(otherMks.current).forEach(id => {

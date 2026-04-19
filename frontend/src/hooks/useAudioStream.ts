@@ -27,9 +27,10 @@ export interface TriageResult {
 
 interface UseAudioStreamOptions {
   onTranscript?: (text: string) => void;
-  onTriageResult?: (result: TriageResult) => void;
+  onTriageResult?: (result: TriageResult, ttsText: string) => void;
   onStatusChange?: (status: string) => void;
   onFollowUp?: (missing: string[], prompt: string) => void;
+  onConversationReset?: () => void;
 }
 
 export default function useAudioStream({
@@ -37,37 +38,58 @@ export default function useAudioStream({
   onTriageResult,
   onStatusChange,
   onFollowUp,
+  onConversationReset,
 }: UseAudioStreamOptions) {
   const wsRef            = useRef<WebSocket | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef        = useRef<Blob[]>([]);
   const [isConnected, setIsConnected] = useState(false);
 
-  const onTranscriptRef = useRef(onTranscript);
-  const onTriageRef     = useRef(onTriageResult);
-  const onStatusRef     = useRef(onStatusChange);
-  const onFollowUpRef   = useRef(onFollowUp);
-  useEffect(() => { onTranscriptRef.current = onTranscript;   }, [onTranscript]);
-  useEffect(() => { onTriageRef.current     = onTriageResult; }, [onTriageResult]);
-  useEffect(() => { onStatusRef.current     = onStatusChange; }, [onStatusChange]);
-  useEffect(() => { onFollowUpRef.current   = onFollowUp;     }, [onFollowUp]);
+  const onTranscriptRef       = useRef(onTranscript);
+  const onTriageRef           = useRef(onTriageResult);
+  const onStatusRef           = useRef(onStatusChange);
+  const onFollowUpRef         = useRef(onFollowUp);
+  const onConversationResetRef = useRef(onConversationReset);
+  useEffect(() => { onTranscriptRef.current        = onTranscript;        }, [onTranscript]);
+  useEffect(() => { onTriageRef.current            = onTriageResult;      }, [onTriageResult]);
+  useEffect(() => { onStatusRef.current            = onStatusChange;      }, [onStatusChange]);
+  useEffect(() => { onFollowUpRef.current          = onFollowUp;          }, [onFollowUp]);
+  useEffect(() => { onConversationResetRef.current = onConversationReset; }, [onConversationReset]);
 
-  const audioQueueRef = useRef<string[]>([]);
-  const isPlayingRef  = useRef(false);
+  // Accumulate streaming MP3 chunks; play sequentially as blobs when audio_end arrives
+  const pendingChunksRef = useRef<string[]>([]);
+  const blobQueueRef     = useRef<Blob[]>([]);
+  const isPlayingRef     = useRef(false);
 
-  const playNextChunk = useCallback(() => {
-    if (audioQueueRef.current.length === 0) {
+  const playNext = useCallback(() => {
+    if (blobQueueRef.current.length === 0) {
       isPlayingRef.current = false;
       onStatusRef.current?.("idle");
       return;
     }
     isPlayingRef.current = true;
-    const data  = audioQueueRef.current.shift()!;
-    const audio = new Audio(`data:audio/mpeg;base64,${data}`);
-    audio.onended = playNextChunk;
-    audio.onerror = playNextChunk;
-    audio.play().catch(playNextChunk);
+    const blob = blobQueueRef.current.shift()!;
+    const url  = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    const cleanup = () => { URL.revokeObjectURL(url); playNext(); };
+    audio.onended = cleanup;
+    audio.onerror = cleanup;
+    audio.play().catch(cleanup);
   }, []);
+
+  const playAccumulated = useCallback(() => {
+    const chunks = pendingChunksRef.current.splice(0);
+    if (chunks.length === 0) return;
+    const byteArrays = chunks.map((b64) => {
+      const binary = atob(b64);
+      const bytes  = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return bytes;
+    });
+    const blob = new Blob(byteArrays, { type: "audio/mpeg" });
+    blobQueueRef.current.push(blob);
+    if (!isPlayingRef.current) playNext();
+  }, [playNext]);
 
   useEffect(() => {
     let cancelled = false;
@@ -101,22 +123,25 @@ export default function useAudioStream({
       ws.onmessage = (event) => {
         try {
           const msg = JSON.parse(event.data);
-          console.log("[WS] msg type:", msg.type);
 
           if (msg.type === "transcript") {
             onTranscriptRef.current?.(msg.text);
           }
           if (msg.type === "triage") {
-            console.log("[WS] triage result:", msg.result);
-            onTriageRef.current?.(msg.result);
+            onTriageRef.current?.(msg.result, msg.tts_text ?? "");
             onStatusRef.current?.("speaking");
           }
           if (msg.type === "audio") {
-            audioQueueRef.current.push(msg.data);
-            if (!isPlayingRef.current) playNextChunk();
+            pendingChunksRef.current.push(msg.data);
+          }
+          if (msg.type === "audio_end") {
+            playAccumulated();
           }
           if (msg.type === "follow_up") {
             onFollowUpRef.current?.(msg.missing_fields, msg.prompt);
+          }
+          if (msg.type === "conversation_reset") {
+            onConversationResetRef.current?.();
           }
           if (msg.type === "error") {
             console.error("[WS] Server error:", msg.message);
@@ -133,7 +158,7 @@ export default function useAudioStream({
       cancelled = true;
       wsRef.current?.close();
     };
-  }, [playNextChunk]);
+  }, [playAccumulated, playNext]);
 
   const startRecording = useCallback(async () => {
     console.log("[PTT] Starting recording...");

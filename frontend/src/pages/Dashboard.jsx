@@ -8,6 +8,7 @@ import SOPGuidance from "../components/SOPGuidance.jsx";
 import Safety from "../components/Safety.jsx";
 import CCTVPanel from "../components/CCTVPanel.jsx";
 import PursuitMap from "../components/PursuitMap.jsx";
+import ChatBox from "../components/ChatBox.jsx";
 
 const API     = import.meta.env.VITE_API_URL  || "http://localhost:8001";
 const WS_BASE = (import.meta.env.VITE_API_URL || "http://localhost:8001").replace(/^http/, "ws");
@@ -47,6 +48,18 @@ const PRIORITY_COLORS = {
   high: "bg-red-500 text-white", medium: "bg-yellow-400 text-black", low: "bg-green-500 text-black",
 };
 const CAT_ICONS = { patrol: "🛡", incident: "⚠", admin: "📋" };
+
+const FOLLOW_UP_QUESTIONS = {
+  location:         "Where did this occur?",
+  time:             "What time did this happen?",
+  persons_involved: "Can you describe the persons involved?",
+  incident_type:    "What type of incident is this?",
+};
+
+function buildFollowUpLine(missingFields) {
+  if (!missingFields?.length) return "";
+  return missingFields.map(f => FOLLOW_UP_QUESTIONS[f]).filter(Boolean).join(" ");
+}
 
 const SOP_MAP = {
   theft:       ["Identify yourself — PSIA s.9","Detain only if caught in act","Call SPF 999 if value >S$500 or suspect resists","Preserve CCTV footage","GD entry within 30 min"],
@@ -89,14 +102,22 @@ function getCoords(locName) {
 }
 
 export default function Dashboard() {
-  const [transcript, setTranscript]       = useState("");
+  const [messages,   setMessages]         = useState([]);
   const [triage,     setTriage]           = useState(null);
   const [newTask,    setNewTask]           = useState(null);
   const [connected,  setConnected]        = useState(false);
   const [intel,      setIntel]            = useState(null);
   const [officerPos, setOfficerPos]       = useState([1.3521, 103.8198]);
   const [suspectPos, setSuspectPos]       = useState(null);
-  const [otherOfficers, setOtherOfficers] = useState({});
+  const [otherOfficers, setOtherOfficers] = useState(() => {
+    const m = 0.000090; // ≈ 10 metres in degrees
+    const [lat, lng] = [1.3521, 103.8198];
+    return {
+      "C-002": { lat: lat + m,        lng: lng },
+      "C-003": { lat: lat - m * 0.55, lng: lng + m * 0.83 },
+      "C-004": { lat: lat + m * 0.3,  lng: lng - m },
+    };
+  });
   const [activeCams, setActiveCams]       = useState(["CAM-001"]);
   const [scanCam,    setScanCam]          = useState(null);
   const [escalations, setEscalations]    = useState([]);
@@ -111,8 +132,16 @@ export default function Dashboard() {
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
         const loc = [coords.latitude, coords.longitude];
-        if (loc[0] > 1.1 && loc[0] < 1.5 && loc[1] > 103.5 && loc[1] < 104.1)
+        if (loc[0] > 1.1 && loc[0] < 1.5 && loc[1] > 103.5 && loc[1] < 104.1) {
           setOfficerPos(loc);
+          const m = 0.000090;
+          setOtherOfficers(prev => ({
+            ...prev,
+            "C-002": { lat: loc[0] + m,        lng: loc[1] },
+            "C-003": { lat: loc[0] - m * 0.55,  lng: loc[1] + m * 0.83 },
+            "C-004": { lat: loc[0] + m * 0.3,   lng: loc[1] - m },
+          }));
+        }
       },
       (err) => console.warn("[Geo]", err.message),
       { enableHighAccuracy: true, timeout: 8000 }
@@ -144,7 +173,6 @@ export default function Dashboard() {
   }, []);
 
   const runIntel = useCallback(async (locKey) => {
-    if (!locKey) return;
     try {
       const res  = await fetch(`${API}/intelligence/check`, {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -157,31 +185,49 @@ export default function Dashboard() {
         setActiveCams(prev => [...new Set([...cams, ...prev])].slice(0, 4));
         setScanCam(cams[0]);
       }
-    } catch {}
+    } catch (err) { console.warn("[Intel] check failed:", err); }
   }, []);
 
-  const handleTriage = useCallback((result) => {
+  const handleTriage = useCallback((result, ttsText) => {
     setTriage(result);
     setNewTask({ ...result, id: Date.now().toString(), created_at: new Date().toISOString() });
+    const followUp = buildFollowUpLine(result.missing_fields);
+    const jarvisText = [ttsText || result.action, followUp].filter(Boolean).join(" — ");
+    setMessages((prev) => [
+      ...prev,
+      { id: `j-${Date.now()}`, role: "jarvis", text: jarvisText, triage: result, timestamp: new Date() },
+    ]);
     if (result.category === "incident") {
       const loc = extractLocName(`${result.summary} ${result.action}`);
       if (loc) {
         setLocName(loc);
         const coords = getCoords(loc);
         if (coords) setSuspectPos(coords);
-        runIntel(loc);
       }
+      runIntel(loc ?? ""); // always run; empty string returns broad mock data
     }
   }, [runIntel]);
 
   const handleTranscript = useCallback((text) => {
-    setTranscript(text);
+    setMessages((prev) => [
+      ...prev,
+      { id: `u-${Date.now()}`, role: "user", text, timestamp: new Date() },
+    ]);
     const loc = extractLocName(text);
     if (loc && !suspectPos) {
       const coords = getCoords(loc);
       if (coords) setSuspectPos(coords);
     }
   }, [suspectPos]);
+
+  const handleConversationReset = useCallback(() => {
+    setMessages((prev) => [
+      ...prev,
+      { id: `d-${Date.now()}`, role: "divider", text: "NEW INCIDENT" },
+    ]);
+    setTriage(null);
+    setLocName(null);
+  }, []);
 
   const startPursuit = async (lat, lng) => {
     try {
@@ -200,7 +246,7 @@ export default function Dashboard() {
 
   return (
     <div className="h-screen flex flex-col bg-certis-dark text-white overflow-hidden">
-      <StatusBar isConnected={connected} lastTranscript={transcript} />
+      <StatusBar isConnected={connected} />
 
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-1.5 border-b border-certis-border flex-shrink-0">
@@ -248,42 +294,25 @@ export default function Dashboard() {
               onTranscript={handleTranscript}
               onTriageResult={handleTriage}
               onConnectionChange={setConnected}
+              onConversationReset={handleConversationReset}
             />
 
-            {transcript && (
-              <div className="p-2 bg-certis-panel border border-certis-border rounded-lg">
-                <p className="text-xs text-gray-500 mb-0.5">YOU SAID</p>
-                <p className="text-xs text-white italic leading-snug">"{transcript}"</p>
-              </div>
-            )}
-
-            {triage && (
-              <div className="p-2 bg-certis-panel border border-certis-border rounded-lg space-y-1">
-                <p className="text-xs text-gray-500">JARVIS</p>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${PRIORITY_COLORS[triage.priority]}`}>
-                    {triage.priority?.toUpperCase()}
-                  </span>
-                  <span className="text-xs text-gray-400">{CAT_ICONS[triage.category]} {triage.category?.toUpperCase()}</span>
-                </div>
-                <p className="text-xs font-semibold leading-snug">{triage.action}</p>
-                <p className="text-xs text-gray-400 leading-snug">{triage.summary}</p>
-                {triage.escalation_required && (
-                  <div className="p-1.5 bg-red-900/30 border border-red-600/40 rounded text-xs text-red-300 leading-snug">
-                    ⚠ {triage.escalation_reason}
-                  </div>
-                )}
-                {triage.severity_flags?.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {triage.severity_flags.map(f => (
-                      <span key={f} className="text-xs bg-orange-900/40 border border-orange-500/40 text-orange-300 px-1 py-0.5 rounded">
-                        {f.replace(/_/g, " ").toUpperCase()}
-                      </span>
-                    ))}
-                  </div>
+            <div className="bg-certis-panel border border-certis-border rounded-lg overflow-hidden">
+              <div className="flex items-center justify-between px-2 py-1 border-b border-certis-border">
+                <span className="text-xs text-gray-500 tracking-widest">COMMS LOG</span>
+                {messages.length > 0 && (
+                  <button
+                    onClick={() => setMessages([])}
+                    className="text-xs text-gray-600 hover:text-red-400"
+                  >
+                    CLEAR
+                  </button>
                 )}
               </div>
-            )}
+              <div className="overflow-y-auto p-2" style={{ maxHeight: "220px" }}>
+                <ChatBox messages={messages} />
+              </div>
+            </div>
 
             <SOPGuidance steps={getSop(triage)} legalAuthority={getLegal(triage)} triage={triage} />
             {triage?.escalation_required && <Safety triage={triage} />}

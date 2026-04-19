@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import useAudioStream from "../hooks/useAudioStream.ts";
 import useWakeWord from "../hooks/useWakeWord.ts";
 
-export default function WalkieTalkie({ onTranscript, onTriageResult, onConnectionChange }) {
+export default function WalkieTalkie({ onTranscript, onTriageResult, onConnectionChange, onConversationReset }) {
   const [isPressed,        setIsPressed]        = useState(false);
   const [status,           setStatus]           = useState("idle");
   const [bars,             setBars]             = useState(Array(12).fill(0.3));
@@ -22,6 +22,7 @@ export default function WalkieTalkie({ onTranscript, onTriageResult, onConnectio
     onTriageResult,
     onStatusChange: setStatus,
     onFollowUp: handleFollowUp,
+    onConversationReset,
   });
 
   useEffect(() => { onConnectionChange?.(isConnected); }, [isConnected, onConnectionChange]);

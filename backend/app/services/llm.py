@@ -29,6 +29,8 @@ Rules:
 - severity_flags: list of applicable tags from: ["armed_suspect", "medical_emergency", "outnumbered", "hostage", "spf_required"]; empty array if none apply
 - requires_supervisor: true if Certis command or SPF must be notified; otherwise false
 - missing_fields: list of field names that the officer's report did not provide. Possible values: ["location", "time", "persons_involved", "incident_type"]. Only include a field if it is genuinely absent. Return [] if all fields are present.
+- If the officer is answering a follow-up question about an ongoing incident (evident from conversation history), merge the new information into the existing triage and return a complete updated JSON — do NOT start a fresh triage.
+- If the officer says phrases like "new case", "new incident", "next report", or similar, treat this as a completely new independent triage; do not carry over any prior incident details.
 
 ALWAYS respond with ONLY valid JSON in this exact format:
 {
@@ -98,17 +100,24 @@ def _extract_json(raw: str) -> dict:
 _GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 
-async def _groq_call(system: str, user: str, temperature: float, max_tokens: int) -> str:
+async def _groq_call(
+    system: str,
+    user: str,
+    temperature: float,
+    max_tokens: int,
+    history: list | None = None,
+) -> str:
     headers = {
         "Authorization": f"Bearer {settings.groq_api_key}",
         "Content-Type": "application/json",
     }
+    messages = [{"role": "system", "content": system}]
+    if history:
+        messages.extend(history)
+    messages.append({"role": "user", "content": user})
     payload = {
         "model": settings.groq_model,
-        "messages": [
-            {"role": "system", "content": system},
-            {"role": "user",   "content": user},
-        ],
+        "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,
         "response_format": {"type": "json_object"},
@@ -142,12 +151,12 @@ async def _ollama_call(system: str, user: str, temperature: float, num_predict: 
 # Public API
 # ---------------------------------------------------------------------------
 
-async def triage_transcript(transcript: str) -> TriageResult:
+async def triage_transcript(transcript: str, history: list | None = None) -> TriageResult:
     """Triage a spoken officer report via Groq (or Ollama fallback)."""
     user = f"Officer report: {transcript}"
 
     if settings.groq_api_key:
-        raw = await _groq_call(SYSTEM_PROMPT, user, temperature=0.2, max_tokens=256)
+        raw = await _groq_call(SYSTEM_PROMPT, user, temperature=0.2, max_tokens=256, history=history)
     else:
         raw = await _ollama_call(SYSTEM_PROMPT, user, temperature=0.2, num_predict=256)
 
