@@ -18,10 +18,15 @@ const LOCATION_COORDS = {
   "jurong east mrt":      [1.3330, 103.7424],
   "tampines mall":        [1.3527, 103.9453],
   "tampines":             [1.3540, 103.9430],
+  "dampines":             [1.3540, 103.9430],
+  "dampines mall":        [1.3527, 103.9453],
   "orchard road":         [1.3048, 103.8318],
   "orchard":              [1.3048, 103.8318],
   "bugis junction":       [1.2991, 103.8554],
   "bugis":                [1.2991, 103.8554],
+  "boogie's junction":    [1.2991, 103.8554],
+  "boogies junction":     [1.2991, 103.8554],
+  "boogie junction":      [1.2991, 103.8554],
   "woodlands":            [1.4382, 103.7890],
   "woodlands checkpoint": [1.4526, 103.7691],
   "changi airport":       [1.3644, 103.9915],
@@ -104,6 +109,7 @@ function getCoords(locName) {
 export default function Dashboard() {
   const [messages,   setMessages]         = useState([]);
   const [triage,     setTriage]           = useState(null);
+  const [liveReport, setLiveReport]       = useState(null);
   const [newTask,    setNewTask]           = useState(null);
   const [connected,  setConnected]        = useState(false);
   const [intel,      setIntel]            = useState(null);
@@ -122,7 +128,8 @@ export default function Dashboard() {
   const [scanCam,    setScanCam]          = useState(null);
   const [escalations, setEscalations]    = useState([]);
   const [locName,    setLocName]          = useState(null);
-  const wsRef   = useRef(null);
+  const wsRef        = useRef(null);
+  const resetTimerRef = useRef(null);
   const navigate = useNavigate();
   const officer  = JSON.parse(localStorage.getItem("shield_officer") || "{}");
 
@@ -227,6 +234,24 @@ export default function Dashboard() {
     ]);
     setTriage(null);
     setLocName(null);
+    setIntel(null);
+    // Brief delay so user sees FINALIZED state before panel clears
+    resetTimerRef.current = setTimeout(() => setLiveReport(null), 2000);
+  }, []);
+
+  const handleReportUpdate = useCallback((report) => {
+    // Cancel any pending post-reset clear so a fast new report isn't wiped
+    clearTimeout(resetTimerRef.current);
+    setLiveReport(report);
+    // Update map pin from LLM-corrected location in report
+    if (report.location) {
+      const loc = extractLocName(report.location);
+      if (loc) {
+        setLocName(loc);
+        const coords = getCoords(loc);
+        if (coords) setSuspectPos(coords);
+      }
+    }
   }, []);
 
   const startPursuit = async (lat, lng) => {
@@ -295,6 +320,7 @@ export default function Dashboard() {
               onTriageResult={handleTriage}
               onConnectionChange={setConnected}
               onConversationReset={handleConversationReset}
+              onReportUpdate={handleReportUpdate}
             />
 
             <div className="bg-certis-panel border border-certis-border rounded-lg overflow-hidden">
@@ -343,12 +369,12 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ── RIGHT PANEL (268px) ── */}
-        <div className="flex-shrink-0 flex flex-col border-l border-certis-border overflow-hidden" style={{ width: "268px" }}>
+        {/* ── RIGHT PANEL (320px) ── */}
+        <div className="flex-shrink-0 flex flex-col border-l border-certis-border overflow-hidden" style={{ width: "320px" }}>
           {/* Intelligence — top 52% */}
           <div className="overflow-y-auto border-b border-certis-border" style={{ height: "52%" }}>
             <div className="p-2">
-              <Intelligence data={intel} />
+              <Intelligence data={intel} liveReport={liveReport} officer={officer} />
             </div>
           </div>
           {/* Active Tasks — bottom 48% */}

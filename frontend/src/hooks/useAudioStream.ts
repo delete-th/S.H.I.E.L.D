@@ -13,6 +13,21 @@ function getWsUrl(): string {
   return base;
 }
 
+export interface LiveReport {
+  date?: string;
+  time?: string;
+  officer_badge?: string;
+  incident_type?: string;
+  location?: string;
+  description?: string;
+  persons_involved?: string;
+  incident_time?: string;
+  actions_taken?: string;
+  severity?: "high" | "medium" | "low";
+  pending_fields?: string[];
+  status?: "draft" | "finalized";
+}
+
 export interface TriageResult {
   priority: "high" | "medium" | "low";
   action: string;
@@ -31,6 +46,7 @@ interface UseAudioStreamOptions {
   onStatusChange?: (status: string) => void;
   onFollowUp?: (missing: string[], prompt: string) => void;
   onConversationReset?: () => void;
+  onReportUpdate?: (report: LiveReport) => void;
 }
 
 export default function useAudioStream({
@@ -39,6 +55,7 @@ export default function useAudioStream({
   onStatusChange,
   onFollowUp,
   onConversationReset,
+  onReportUpdate,
 }: UseAudioStreamOptions) {
   const wsRef            = useRef<WebSocket | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -50,11 +67,13 @@ export default function useAudioStream({
   const onStatusRef           = useRef(onStatusChange);
   const onFollowUpRef         = useRef(onFollowUp);
   const onConversationResetRef = useRef(onConversationReset);
+  const onReportUpdateRef      = useRef(onReportUpdate);
   useEffect(() => { onTranscriptRef.current        = onTranscript;        }, [onTranscript]);
   useEffect(() => { onTriageRef.current            = onTriageResult;      }, [onTriageResult]);
   useEffect(() => { onStatusRef.current            = onStatusChange;      }, [onStatusChange]);
   useEffect(() => { onFollowUpRef.current          = onFollowUp;          }, [onFollowUp]);
   useEffect(() => { onConversationResetRef.current = onConversationReset; }, [onConversationReset]);
+  useEffect(() => { onReportUpdateRef.current      = onReportUpdate;      }, [onReportUpdate]);
 
   // Accumulate streaming MP3 chunks; play sequentially as blobs when audio_end arrives
   const pendingChunksRef = useRef<string[]>([]);
@@ -142,6 +161,9 @@ export default function useAudioStream({
           }
           if (msg.type === "conversation_reset") {
             onConversationResetRef.current?.();
+          }
+          if (msg.type === "report_update" || msg.type === "report_finalized") {
+            onReportUpdateRef.current?.(msg.report);
           }
           if (msg.type === "error") {
             console.error("[WS] Server error:", msg.message);
